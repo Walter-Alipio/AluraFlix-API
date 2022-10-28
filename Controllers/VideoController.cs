@@ -48,4 +48,19 @@ public class VideoController : ControllerBase
 
     return Ok(readDto);
   }
+
+  [HttpPut("{id}")]
+  public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
+  {
+    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
+    if (video == null)
+    {
+      return NotFound();
+    }
+
+    _mapper.Map(videoDTO, video);
+    _context.SaveChanges();
+    return NoContent();
+
+  }
 }
