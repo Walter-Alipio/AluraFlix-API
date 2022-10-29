@@ -1,27 +1,38 @@
+using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("[controller]")]
-public class VideoController : ControllerBase
+public class VideosController : ControllerBase
 {
   private IMapper _mapper;
   private AppDbContext _context;
 
-  public VideoController(AppDbContext context, IMapper mapper)
+  public VideosController(AppDbContext context, IMapper mapper)
   {
     _context = context;
     _mapper = mapper;
   }
 
+
   [HttpPost]
   public IActionResult addVideo([FromBody] CreateVideoDto videoDto)
   {
-    Video video = _mapper.Map<Video>(videoDto);
-    _context.Videos.Add(video);
-    _context.SaveChanges();
+    try
+    {
+      videoDto.urlTest();
+      Video video = _mapper.Map<Video>(videoDto);
+      _context.Videos.Add(video);
+      _context.SaveChanges();
 
-    return CreatedAtAction(nameof(showVideoById), new { Id = video.Id }, video);
+      return CreatedAtAction(nameof(showVideoById), new { Id = video.Id }, video);
+    }
+    catch (System.Exception e)
+    {
+
+      return BadRequest(e.Message);
+    }
   }
 
   [HttpGet("{id}")]
@@ -62,6 +73,7 @@ public class VideoController : ControllerBase
     _context.SaveChanges();
     return NoContent();
   }
+
 
 
   [HttpDelete("{id}")]
