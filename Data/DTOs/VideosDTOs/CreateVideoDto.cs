@@ -25,7 +25,8 @@ public class CreateVideoDto
     if (!url[0].Equals(value: _urlCheck) || url[1].Length != 11)
     {
       throw new Exception(
-        @"Url inválida = Formato: https://www.youtube.com/watch?v=###########"
+        @"Url inválida = 
+    Formato Válido: https://www.youtube.com/watch?v=###########"
         );
     }
   }
