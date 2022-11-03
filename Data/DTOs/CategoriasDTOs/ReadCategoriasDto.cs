@@ -1,0 +1,12 @@
+namespace AluraPlayList.Data.DTOs.CategoriasDTOs
+{
+  public class ReadCategoriasDto
+  {
+
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string Cor { get; set; }
+    public object Videos { get; set; }
+
+  }
+}
