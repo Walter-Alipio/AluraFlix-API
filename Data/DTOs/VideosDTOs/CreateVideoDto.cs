@@ -18,5 +18,8 @@ namespace AluraPlayList.Data.DTOs.VideosDTOs
     [Required(ErrorMessage = "Campo URL é obrigaório.")]
     [StringLength(100, ErrorMessage = "Tamanho máximo do campo 100 caracteres")]
     public string Url { get; set; }
+
+    [Required(ErrorMessage = "Campo CategoriaId é obrigatório.")]
+    public int CategoriaId { get; set; }
   }
 }

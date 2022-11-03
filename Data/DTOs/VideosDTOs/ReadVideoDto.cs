@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AluraPlayList.Models;
 
 namespace AluraPlayList.Data.DTOs.VideosDTOs
 {
@@ -24,5 +25,7 @@ namespace AluraPlayList.Data.DTOs.VideosDTOs
     [Required(ErrorMessage = "Campo URL é obrigaório.")]
     [StringLength(100, ErrorMessage = "Tamanho máximo do campo 100 caracteres")]
     public string Url { get; set; }
+
+    public Categoria Categoria { get; set; }
   }
 }
