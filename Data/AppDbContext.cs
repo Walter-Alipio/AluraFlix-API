@@ -7,6 +7,17 @@ namespace AluraPlayList.Data
   {
     public AppDbContext(DbContextOptions<AppDbContext> opt) : base(opt) { }
 
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+      //Relação 1:n
+      builder.Entity<Video>()
+        .HasOne(video => video.Categoria)
+        .WithMany(categoia => categoia.Videos)
+        .HasForeignKey(video => video.CategoriaId);
+
+    }
+
     public DbSet<Video> Videos { get; set; }
+    public DbSet<Categoria> Categorias { get; set; }
   }
 }
