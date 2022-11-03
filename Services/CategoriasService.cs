@@ -56,7 +56,7 @@ namespace AluraPlayList.Services
       return _mapper.Map<ReadCategoriasDto>(categoria);
     }
 
-    internal Result DeleteCategorias(int id)
+    public Result DeleteCategorias(int id)
     {
       Categoria categoria = _context.Categorias.FirstOrDefault(categoria => categoria.Id == id);
 
