@@ -1,5 +1,8 @@
+using System.Linq;
 using System.Net;
+using AluraPlayList.Services;
 using AutoMapper;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -8,70 +11,49 @@ public class VideosController : ControllerBase
 {
   private IMapper _mapper;
   private AppDbContext _context;
+  private VideosService _videoService;
 
-  public VideosController(AppDbContext context, IMapper mapper)
+  public VideosController(AppDbContext context, IMapper mapper, VideosService videoService = null)
   {
     _context = context;
     _mapper = mapper;
+    _videoService = videoService;
   }
-
 
   [HttpPost]
   public IActionResult addVideo([FromBody] CreateVideoDto videoDto)
   {
-    try
-    {
-      videoDto.urlTest();
-      Video video = _mapper.Map<Video>(videoDto);
-      _context.Videos.Add(video);
-      _context.SaveChanges();
+    Result result = _videoService.addVideo(videoDto);
+    if (result.IsFailed) return StatusCode(500, result.Errors.First());
 
-      return CreatedAtAction(nameof(showVideoById), new { Id = video.Id }, video);
-    }
-    catch (System.Exception e)
-    {
-
-      return BadRequest(e.Message);
-    }
+    return StatusCode(201);
   }
 
   [HttpGet("{id}")]
   public IActionResult showVideoById(int id)
   {
-    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
-    if (video == null)
-    {
-      return NotFound();
-    }
-    ReadVideoDTO videoDTO = _mapper.Map<ReadVideoDTO>(video);
-    return Ok(videoDTO);
+    ReadVideoDTO readDto = _videoService.ShowVideoById(id);
+    if (readDto == null) return NotFound();
+
+    return Ok(readDto);
   }
 
   [HttpGet]
-  public IActionResult showAllVideo()
+  public IActionResult showAllVideos()
   {
-    List<Video> videos = _context.Videos.ToList();
-    if (videos == null)
-    {
-      return NotFound();
-    }
-    List<ReadVideoDTO> readDto = _mapper.Map<List<ReadVideoDTO>>(videos);
+    List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos();
+    if (readDtoList == null) return NotFound();
 
-    return Ok(readDto);
+    return Ok(readDtoList);
   }
 
   [HttpPut("{id}")]
   public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
-    if (video == null)
-    {
-      return NotFound();
-    }
+    ReadVideoDTO readDto = _videoService.UpdateVideo(id, videoDTO);
+    if (videoDTO == null) return NotFound();
 
-    _mapper.Map(videoDTO, video);
-    _context.SaveChanges();
-    return NoContent();
+    return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
   }
 
 
@@ -79,14 +61,9 @@ public class VideosController : ControllerBase
   [HttpDelete("{id}")]
   public IActionResult deleteVideo(int id)
   {
-    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
-    if (video == null)
-    {
-      return NotFound();
-    }
+    Result result = _videoService.DeleteVideo(id);
+    if (result.IsFailed) return NotFound();
 
-    _context.Remove(video);
-    _context.SaveChanges();
     return NoContent();
   }
 }
