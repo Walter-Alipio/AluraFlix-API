@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AluraPlayList.Models
 {
@@ -14,6 +15,7 @@ namespace AluraPlayList.Models
     [Required(ErrorMessage = "Campo cor é obrigatório.")]
     [StringLength(10, ErrorMessage = "Tamanho excedido.")]
     public string Cor { get; set; }
+    [JsonIgnore]
     public virtual List<Video> Videos { get; set; }
   }
 }
