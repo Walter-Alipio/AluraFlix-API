@@ -1,8 +1,12 @@
+using AluraPlayList.Models;
 using Microsoft.EntityFrameworkCore;
 
-public class AppDbContext : DbContext
+namespace AluraPlayList.Data
 {
-  public AppDbContext(DbContextOptions<AppDbContext> opt) : base(opt) { }
+  public class AppDbContext : DbContext
+  {
+    public AppDbContext(DbContextOptions<AppDbContext> opt) : base(opt) { }
 
-  public DbSet<Video> Videos { get; set; }
+    public DbSet<Video> Videos { get; set; }
+  }
 }

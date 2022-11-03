@@ -1,3 +1,6 @@
+using AluraPlayList.Data;
+using AluraPlayList.Data.DTOs.VideosDTOs;
+using AluraPlayList.Models;
 using AutoMapper;
 using FluentResults;
 

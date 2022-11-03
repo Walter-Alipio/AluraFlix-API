@@ -1,3 +1,5 @@
+using AluraPlayList.Data.DTOs.VideosDTOs;
+using AluraPlayList.Models;
 using AutoMapper;
 
 public class VideoProfile : Profile

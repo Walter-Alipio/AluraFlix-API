@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Net;
+using AluraPlayList.Data.DTOs.VideosDTOs;
 using AluraPlayList.Services;
 using AutoMapper;
 using FluentResults;
@@ -9,14 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class VideosController : ControllerBase
 {
-  private IMapper _mapper;
-  private AppDbContext _context;
   private VideosService _videoService;
 
-  public VideosController(AppDbContext context, IMapper mapper, VideosService videoService = null)
+  public VideosController(VideosService videoService = null)
   {
-    _context = context;
-    _mapper = mapper;
     _videoService = videoService;
   }
 

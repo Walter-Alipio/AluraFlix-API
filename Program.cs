@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using AluraPlayList.Data;
 using AluraPlayList.Services;
 using Microsoft.EntityFrameworkCore;
 
