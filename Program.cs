@@ -14,6 +14,7 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<AppDbContext>(opts => opts.UseLazyLoadingProxies().UseMySql(builder.Configuration.GetConnectionString("DbConnection"), new MySqlServerVersion(new Version(8, 0))));
 
 builder.Services.AddScoped<VideosService, VideosService>();
+builder.Services.AddScoped<CategoriasService, CategoriasService>();
 
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
