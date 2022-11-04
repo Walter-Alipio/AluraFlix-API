@@ -34,6 +34,15 @@ namespace AluraPlayList.Controllers
       return Ok(readCategoria);
     }
 
+    [HttpGet("{id}/videos")]
+    public IActionResult ShowVideosByCategoriaId(int id)
+    {
+      ReadCategoriaWithVideoDto readCategoria = _categoriaService.ShowVideosByCategoriaId(id);
+      if (readCategoria == null) return NotFound();
+
+      return Ok(readCategoria);
+    }
+
     [HttpGet]
     public IActionResult ShowAllCategorias()
     {
@@ -51,6 +60,9 @@ namespace AluraPlayList.Controllers
 
       return CreatedAtAction(nameof(ShowCategoriaById), new { Id = categoriasDto.Id }, categoriasDto);
     }
+
+
+
 
     [HttpDelete("{id}")]
     public IActionResult DeleteCategorias(int id)

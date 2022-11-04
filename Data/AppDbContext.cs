@@ -13,7 +13,8 @@ namespace AluraPlayList.Data
       builder.Entity<Video>()
         .HasOne(video => video.Categoria)
         .WithMany(categoia => categoia.Videos)
-        .HasForeignKey(video => video.CategoriaId);
+        .HasForeignKey(video => video.CategoriaId)
+        .OnDelete(DeleteBehavior.SetNull);
 
     }
 
