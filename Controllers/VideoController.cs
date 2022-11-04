@@ -1,8 +1,5 @@
-using System.Linq;
-using System.Net;
 using AluraPlayList.Data.DTOs.VideosDTOs;
 using AluraPlayList.Services;
-using AutoMapper;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +9,7 @@ public class VideosController : ControllerBase
 {
   private VideosService _videoService;
 
-  public VideosController(VideosService videoService = null)
+  public VideosController(VideosService videoService)
   {
     _videoService = videoService;
   }
@@ -42,9 +39,9 @@ public class VideosController : ControllerBase
   [HttpGet]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public IActionResult showAllVideos()
+  public IActionResult showAllVideos([FromQuery] string? search)
   {
-    List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos();
+    List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos(search);
     if (readDtoList == null) return NotFound();
 
     return Ok(readDtoList);
@@ -60,7 +57,6 @@ public class VideosController : ControllerBase
 
     return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
   }
-
 
 
   [HttpDelete("{id}")]

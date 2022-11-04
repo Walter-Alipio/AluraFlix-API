@@ -20,6 +20,10 @@ namespace AluraPlayList.Services
     public Result addVideo(CreateVideoDto videoDto)
     {
       Result resultado = urlTest(videoDto);
+      if (videoDto.CategoriaId == 0)
+      {
+        videoDto.CategoriaId = 1;
+      }
 
       if (resultado.IsFailed) return resultado;
 
@@ -41,9 +45,9 @@ namespace AluraPlayList.Services
       return Result.Ok();
     }
 
-    internal ReadVideoDTO ShowVideoById(int id)
+    public ReadVideoDTO ShowVideoById(int id)
     {
-      Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
+      Video? video = _context.Videos.FirstOrDefault(video => video.Id == id);
       if (video == null)
       {
         return null;
@@ -51,19 +55,25 @@ namespace AluraPlayList.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
-    internal List<ReadVideoDTO> ShowAllVideos()
+    public List<ReadVideoDTO> ShowAllVideos(string? videoTitle)
     {
       List<Video> videos = _context.Videos.ToList();
       if (videos == null)
       {
         return null;
       }
+      if (videoTitle != null)
+      {
+        IEnumerable<Video> query = from video in videos where video.Title == videoTitle select video;
+        videos = query.ToList();
+      }
+
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
-    internal ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
     {
-      Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
+      Video? video = _context.Videos.FirstOrDefault(video => video.Id == id);
       if (video == null)
       {
         return null;
@@ -73,10 +83,10 @@ namespace AluraPlayList.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
-    internal Result DeleteVideo(int id)
+    public Result DeleteVideo(int id)
     {
 
-      Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
+      Video? video = _context.Videos.FirstOrDefault(video => video.Id == id);
       if (video == null)
       {
         return Result.Fail("Video não encontrado.");
