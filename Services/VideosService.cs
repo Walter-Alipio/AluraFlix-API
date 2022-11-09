@@ -16,7 +16,7 @@ namespace AluraPlayList.Services
       _mapper = mapper;
       _context = context;
     }
-
+    //POST new video
     public Result addVideo(CreateVideoDto videoDto)
     {
       Result resultado = urlTest(videoDto);
@@ -35,19 +35,10 @@ namespace AluraPlayList.Services
       return Result.Ok();
     }
 
-    private Result urlTest(CreateVideoDto videoDto)
-    {
-      string[] url = videoDto.Url.Split("=");
-      if (!url[0].Equals(value: _urlCheck) || url[1].Length != 11)
-      {
-        return Result.Fail("URL INVÁLIDA!");
-      }
-      return Result.Ok();
-    }
-
+    //GET video by id
     public ReadVideoDTO ShowVideoById(int id)
     {
-      Video? video = _context.Videos.FirstOrDefault(video => video.Id == id);
+      Video? video = GetVideoById(id);
       if (video == null)
       {
         return null;
@@ -55,6 +46,8 @@ namespace AluraPlayList.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
+
+    //GET all videos
     public List<ReadVideoDTO> ShowAllVideos(string? videoTitle)
     {
       List<Video> videos = _context.Videos.ToList();
@@ -71,10 +64,10 @@ namespace AluraPlayList.Services
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
+    //PUT update video information
     public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
     {
-      Video? video = _context.Videos.FirstOrDefault(video => video.Id == id);
-      if (video == null)
+      Video? video = GetVideoById(id);
       {
         return null;
       }
@@ -83,10 +76,11 @@ namespace AluraPlayList.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
+    //DELETE video from database
     public Result DeleteVideo(int id)
     {
 
-      Video? video = _context.Videos.FirstOrDefault(video => video.Id == id);
+      Video? video = GetVideoById(id);
       if (video == null)
       {
         return Result.Fail("Video não encontrado.");
@@ -94,6 +88,23 @@ namespace AluraPlayList.Services
       _context.Remove(video);
       _context.SaveChanges();
       return Result.Ok();
+    }
+
+
+    private Result urlTest(CreateVideoDto videoDto)
+    {
+      string[] url = videoDto.Url.Split("=");
+      if (!url[0].Equals(value: _urlCheck) || url[1].Length != 11)
+      {
+        return Result.Fail("URL INVÁLIDA!");
+      }
+      return Result.Ok();
+    }
+
+
+    private Video? GetVideoById(int id)
+    {
+      return _context.Videos.FirstOrDefault(video => video.Id == id);
     }
   }
 }
