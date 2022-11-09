@@ -16,9 +16,14 @@ namespace AluraPlayList.Controllers
       _categoriaService = categoriaService;
     }
 
+    /// <summary>
+    /// Save a new Categoria.
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="201">If success</response>
+    /// <response code="500">If new item data is incorrect</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult AddCategoria([FromBody] CreateCategoriasDto categoriaDto)
     {
       ReadCategoriasDto readCategoria = _categoriaService.AddCategoria(categoriaDto);
@@ -27,9 +32,14 @@ namespace AluraPlayList.Controllers
       return CreatedAtAction(nameof(ShowCategoriaById), new { Id = readCategoria.Id }, readCategoria);
     }
 
+    /// <summary>
+    /// Get Categoria by Id.
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">If success</response>
+    /// <response code="404">If item id is null</response>
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult ShowCategoriaById(int id)
     {
       ReadCategoriasDto readCategoria = _categoriaService.ShowCategoriaById(id);
@@ -38,9 +48,14 @@ namespace AluraPlayList.Controllers
       return Ok(readCategoria);
     }
 
+    /// <summary>
+    /// Get Videos by Categoria Id.
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">If success</response>
+    /// <response code="404">If item id is null</response>
     [HttpGet("{id}/videos")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult ShowVideosByCategoriaId(int id)
     {
       ReadCategoriaWithVideoDto readCategoria = _categoriaService.ShowVideosByCategoriaId(id);
@@ -49,9 +64,14 @@ namespace AluraPlayList.Controllers
       return Ok(readCategoria);
     }
 
+    /// <summary>
+    /// Get all Categorias.
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">If success</response>
+    /// <response code="404">If item id is null</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult ShowAllCategorias()
     {
       List<ReadCategoriasDto> categoriasDtos = _categoriaService.ShowAllCategorias();
@@ -60,9 +80,14 @@ namespace AluraPlayList.Controllers
       return Ok(categoriasDtos);
     }
 
+    /// <summary>
+    /// Update a Categoria and return JSON with new data.
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">If success</response>
+    /// <response code="404">If item id is null</response>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult UpdateCategoria(int id, [FromBody] UpdateCategoriasDtos updateDto)
     {
       ReadCategoriasDto categoriasDto = _categoriaService.UpdateCategoria(id, updateDto);
@@ -71,12 +96,14 @@ namespace AluraPlayList.Controllers
       return CreatedAtAction(nameof(ShowCategoriaById), new { Id = categoriasDto.Id }, categoriasDto);
     }
 
-
-
-
+    /// <summary>
+    /// Delete Categoria.
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="204">If success</response>
+    /// <response code="404">If item id is null</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteCategorias(int id)
     {
       Result result = _categoriaService.DeleteCategorias(id);
