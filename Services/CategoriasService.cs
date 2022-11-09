@@ -27,17 +27,20 @@ namespace AluraPlayList.Services
       return _mapper.Map<ReadCategoriasDto>(categoria);
     }
 
+
     public ReadCategoriasDto ShowCategoriaById(int id)
     {
-      Categoria? categoria = _context.Categorias.FirstOrDefault(categoria => categoria.Id == id);
+      Categoria? categoria = GetCategoriaById(id);
 
       if (categoria == null) return null;
 
       return _mapper.Map<ReadCategoriasDto>(categoria);
     }
+
+
     public ReadCategoriaWithVideoDto ShowVideosByCategoriaId(int id)
     {
-      Categoria? categoria = _context.Categorias.FirstOrDefault(categoria => categoria.Id == id);
+      Categoria? categoria = GetCategoriaById(id);
 
       if (categoria == null) return null;
 
@@ -54,8 +57,7 @@ namespace AluraPlayList.Services
 
     public ReadCategoriasDto UpdateCategoria(int id, UpdateCategoriasDtos updateCategoria)
     {
-      Categoria? categoria = _context.Categorias.FirstOrDefault(categoria => categoria.Id == id);
-
+      Categoria? categoria = GetCategoriaById(id);
       if (categoria == null) return null;
 
       _mapper.Map(updateCategoria, categoria);
@@ -68,13 +70,17 @@ namespace AluraPlayList.Services
 
     public Result DeleteCategorias(int id)
     {
-      Categoria? categoria = _context.Categorias.FirstOrDefault(categoria => categoria.Id == id);
-
+      Categoria? categoria = GetCategoriaById(id);
       if (categoria == null) return Result.Fail("Não encontrado");
 
       _context.Remove(categoria);
       _context.SaveChanges();
       return Result.Ok();
+    }
+
+    private Categoria? GetCategoriaById(int id)
+    {
+      return _context.Categorias.FirstOrDefault(categoria => categoria.Id == id);
     }
   }
 }
