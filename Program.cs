@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using AluraPlayList.Data;
 using AluraPlayList.Services;
+using AluraPlayList.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,8 @@ builder.Services.AddControllers()
 
 builder.Services.AddDbContext<AppDbContext>(opts => opts.UseLazyLoadingProxies().UseMySql(builder.Configuration.GetConnectionString("DbConnection"), new MySqlServerVersion(new Version(8, 0))));
 
-builder.Services.AddScoped<VideosService, VideosService>();
+//injetando as services
+builder.Services.AddScoped<IVideosService, VideosService>();
 builder.Services.AddScoped<CategoriasService, CategoriasService>();
 
 //Automapper

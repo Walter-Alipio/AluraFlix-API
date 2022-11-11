@@ -1,5 +1,5 @@
 using AluraPlayList.Data.DTOs.VideosDTOs;
-using AluraPlayList.Services;
+using AluraPlayList.Services.Interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class VideosController : ControllerBase
 {
-  private VideosService _videoService;
+  private IVideosService _videoService;
 
-  public VideosController(VideosService videoService)
+  public VideosController(IVideosService videoService)
   {
     _videoService = videoService;
   }
@@ -19,15 +19,15 @@ public class VideosController : ControllerBase
   /// </summary>
   /// <returns></returns>
   /// <response code="201">If success</response>
-  /// <response code="500">If new item data is incorrect</response>
+  /// <response code="400">If new item data is incorrect</response>
   [HttpPost]
   [ProducesResponseType(StatusCodes.Status201Created)]
   public IActionResult addVideo([FromBody] CreateVideoDto videoDto)
   {
     Result result = _videoService.addVideo(videoDto);
-    if (result.IsFailed) return StatusCode(500, result.Errors.First());
+    if (result.IsFailed) return BadRequest(result.Errors.First());
 
-    return StatusCode(201);
+    return Created("Video adicionado com sucesso!", result.Successes.FirstOrDefault());
   }
 
   /// <summary>
@@ -74,7 +74,7 @@ public class VideosController : ControllerBase
   public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
     ReadVideoDTO readDto = _videoService.UpdateVideo(id, videoDTO);
-    if (videoDTO == null) return NotFound();
+    if (readDto == null) return NotFound();
 
     return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
   }
