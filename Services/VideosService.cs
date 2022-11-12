@@ -58,8 +58,16 @@ namespace AluraPlayList.Services
       }
       if (videoTitle != null)
       {
-        IEnumerable<Video> query = from video in videos where video.Title == videoTitle select video;
-        videos = query.ToList();
+        try
+        {
+
+          IEnumerable<Video> query = from video in videos where video.Title.Contains(videoTitle) select video;
+          videos = query.ToList();
+        }
+        catch
+        {
+          return null;
+        }
       }
 
       return _mapper.Map<List<ReadVideoDTO>>(videos);
@@ -130,7 +138,7 @@ namespace AluraPlayList.Services
       return Result.Ok();
     }
 
-
+    //Checks if video url is a youtube valid url
     private Result urlTest(VideoDto videoDto)
     {
       string[] url = videoDto.Url.Split("=");
@@ -141,7 +149,7 @@ namespace AluraPlayList.Services
       return Result.Ok();
     }
 
-
+    //Search in database 
     private Video? GetVideoById(int id)
     {
       return _context.Videos.FirstOrDefault(video => video.Id == id);
