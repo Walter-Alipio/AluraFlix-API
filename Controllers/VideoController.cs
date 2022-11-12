@@ -73,8 +73,15 @@ public class VideosController : ControllerBase
   [ProducesResponseType(StatusCodes.Status200OK)]
   public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
+    ReadVideoDTO selectedVideo = _videoService.IsValidId(id);
+    if (selectedVideo == null) return NotFound();
+
+    Result result = _videoService.ValidDTOFormat(videoDTO);
+
+    if (result.IsFailed) return BadRequest(result.Errors.First());
+
     ReadVideoDTO readDto = _videoService.UpdateVideo(id, videoDTO);
-    if (readDto == null) return NotFound();
+
 
     return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
   }

@@ -8,6 +8,6 @@ public class VideoProfile : Profile
   {
     CreateMap<CreateVideoDto, Video>();
     CreateMap<Video, ReadVideoDTO>();
-    CreateMap<UpdateVideoDTO, Video>();
+    CreateMap<UpdateVideoDTO, Video>().MapOnlyIfChanged();
   }
 }

@@ -1,16 +1,17 @@
 using AluraPlayList.Data;
 using AluraPlayList.Data.DTOs.VideosDTOs;
 using AluraPlayList.Models;
+using AluraPlayList.Services.Interfaces;
 using AutoMapper;
 using FluentResults;
 
 namespace AluraPlayList.Services
 {
-  public class VideosService
+  public class VideosService : IVideosService
   {
     private IMapper _mapper;
     private AppDbContext _context;
-    private string _urlCheck = "https://www.youtube.com/watch?v";
+    private static string _URLCHECK = "https://www.youtube.com/watch?v";
     public VideosService(IMapper mapper, AppDbContext context)
     {
       _mapper = mapper;
@@ -65,12 +66,51 @@ namespace AluraPlayList.Services
     }
 
     //PUT update video information
-    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    public ReadVideoDTO IsValidId(int id)
     {
       Video? video = GetVideoById(id);
+      if (video == null)
       {
         return null;
       }
+
+      return _mapper.Map<ReadVideoDTO>(video);
+    }
+
+    public Result ValidDTOFormat(UpdateVideoDTO videoDTO)
+    {
+      try
+      {
+        Result result;
+        if (!String.IsNullOrEmpty(videoDTO.Url))
+        {
+          result = urlTest(videoDTO);
+          if (result.IsFailed)
+          {
+            throw new Exception(result.Errors.FirstOrDefault().ToString());
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        System.Console.WriteLine(e.Message);
+        System.Console.WriteLine(e.StackTrace);
+        return Result.Fail(e.Message);
+      }
+
+      return Result.Ok();
+    }
+
+    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    {
+
+      Video? video = GetVideoById(id);
+
+      if (videoDTO.CategoriaId == 0)
+        videoDTO.CategoriaId = video.CategoriaId;
+      // {
+      //   return null;
+      // }
       _mapper.Map(videoDTO, video);
       _context.SaveChanges();
       return _mapper.Map<ReadVideoDTO>(video);
@@ -91,10 +131,10 @@ namespace AluraPlayList.Services
     }
 
 
-    private Result urlTest(CreateVideoDto videoDto)
+    private Result urlTest(VideoDto videoDto)
     {
       string[] url = videoDto.Url.Split("=");
-      if (!url[0].Equals(value: _urlCheck) || url[1].Length != 11)
+      if (!url[0].Equals(value: _URLCHECK) || url[1].Length != 11)
       {
         return Result.Fail("URL INVÁLIDA!");
       }
@@ -106,5 +146,7 @@ namespace AluraPlayList.Services
     {
       return _context.Videos.FirstOrDefault(video => video.Id == id);
     }
+
+
   }
 }
