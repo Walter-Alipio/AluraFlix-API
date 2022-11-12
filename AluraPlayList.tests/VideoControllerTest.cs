@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System.Net;
 using AluraPlayList.Data.DTOs.VideosDTOs;
 using AluraPlayList.Services.Interfaces;
@@ -113,6 +114,20 @@ namespace AluraPlayList.tests
       //Act
       Assert.IsType<NotFoundResult>(response);
     }
+    [Fact]
+    public void UpdateVideoWithInvalidUrlShouldReturnBadRequest()
+    {
+      UpdateVideoDTO updateVideoDTO = new()
+      {
+        Title = "Video teste",
+        Description = "video algum",
+        Url = "www",
+        CategoriaId = 1
+      };
+      var response = _videoController.updateVideo(1, updateVideoDTO);
+      //Act
+      Assert.IsType<BadRequestObjectResult>(response);
+    }
 
   }
 
@@ -194,11 +209,24 @@ namespace AluraPlayList.tests
       return _readVideo.Find(ob => ob.Id == id);
     }
 
-    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    public ReadVideoDTO IsValidId(int id)
     {
       ReadVideoDTO readDto = GetVideoById(id);
 
       return readDto == null ? null : readDto;
+    }
+
+    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    {
+      return new ReadVideoDTO();
+    }
+
+    public Result ValidDTOFormat(UpdateVideoDTO videoDTO)
+    {
+      if (videoDTO.Url.Equals("www"))
+        return Result.Fail("Invalid data");
+
+      return Result.Ok();
     }
   }
 
