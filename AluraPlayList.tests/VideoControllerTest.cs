@@ -1,8 +1,4 @@
-using System.Text.RegularExpressions;
-using System.Net;
 using AluraPlayList.Data.DTOs.VideosDTOs;
-using AluraPlayList.Services.Interfaces;
-using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
@@ -22,6 +18,7 @@ namespace AluraPlayList.tests
     [Fact]
     public void CreateNewVideoWithGoodParamsShouldReturnCreated()
     {
+      //Arrange
       CreateVideoDto videoDto = new()
       {
         Title = "Video teste",
@@ -29,66 +26,77 @@ namespace AluraPlayList.tests
         Url = "www.video.com",
         CategoriaId = 1
       };
-      var response = _videoController.addVideo(videoDto);
 
       //Act
+      var response = _videoController.addVideo(videoDto);
+      //Assert
       Assert.IsType<CreatedResult>(response);
     }
 
     [Fact]
     public void CreateNewVideoBadParamsShouldReturnBadRequest()
     {
+      //Arrange
       CreateVideoDto videoDto = new();
-      var response = _videoController.addVideo(videoDto);
       //Act
+      var response = _videoController.addVideo(videoDto);
+      //Assert
       Assert.IsType<BadRequestObjectResult>(response);
     }
 
     [Fact]
     public void ShowVideoByExistentIdShouldReturnOk()
     {
-      var response = _videoController.showVideoById(1);
+
       //Act
+      var response = _videoController.showVideoById(1);
+      //Assert
       Assert.IsType<OkObjectResult>(response);
     }
     [Fact]
     public void ResultOfShowVideoByInexistentIdShouldReturnNotFound()
     {
+      //Act
       var response = _videoController.showVideoById(0);
-
+      //Assert
       Assert.IsNotType<NotFoundObjectResult>(response);
     }
     [Fact]
     public void ShowAllVideosShouldReturnOk()
     {
-      var response = _videoController.showAllVideos("");
       //Act
+      var response = _videoController.showAllVideos("");
+      //Assert
       Assert.IsType<OkObjectResult>(response);
     }
     [Fact]
     public void ShowAllVideosByInexistentTitleShouldReturnNotFound()
     {
-      var response = _videoController.showAllVideos("Jóse Saramago");
       //Act
+      var response = _videoController.showAllVideos("Jóse Saramago");
+      //Assert
       Assert.IsType<NotFoundResult>(response);
     }
     [Fact]
     public void DeleteVideoShouldReturnNoContent()
     {
-      var response = _videoController.deleteVideo(1);
       //Act
+      var response = _videoController.deleteVideo(1);
+      //Assert
       Assert.IsType<NoContentResult>(response);
     }
     [Fact]
     public void DeleteVideoWithInexistentIdShouldReturnNotFound()
     {
-      var response = _videoController.deleteVideo(15);
       //Act
+      var response = _videoController.deleteVideo(15);
+      //Assert
       Assert.IsType<NotFoundResult>(response);
     }
     [Fact]
     public void UpdateVideoByIdShouldReturnCreateAction()
     {
+      //Arrange
       UpdateVideoDTO updateVideoDTO = new()
       {
         Title = "Video teste",
@@ -96,13 +104,15 @@ namespace AluraPlayList.tests
         Url = "www.video.com",
         CategoriaId = 1
       };
-      var response = _videoController.updateVideo(1, updateVideoDTO);
       //Act
+      var response = _videoController.updateVideo(1, updateVideoDTO);
+      //Assert
       Assert.IsType<CreatedAtActionResult>(response);
     }
     [Fact]
     public void UpdateVideoWithInexistentIdShouldReturnNotFound()
     {
+      //Arrange
       UpdateVideoDTO updateVideoDTO = new()
       {
         Title = "Video teste",
@@ -110,13 +120,15 @@ namespace AluraPlayList.tests
         Url = "www.video.com",
         CategoriaId = 1
       };
-      var response = _videoController.updateVideo(15, updateVideoDTO);
       //Act
+      var response = _videoController.updateVideo(15, updateVideoDTO);
+      //Assert
       Assert.IsType<NotFoundResult>(response);
     }
     [Fact]
     public void UpdateVideoWithInvalidUrlShouldReturnBadRequest()
     {
+      //Arrange
       UpdateVideoDTO updateVideoDTO = new()
       {
         Title = "Video teste",
@@ -124,110 +136,11 @@ namespace AluraPlayList.tests
         Url = "www",
         CategoriaId = 1
       };
-      var response = _videoController.updateVideo(1, updateVideoDTO);
       //Act
+      var response = _videoController.updateVideo(1, updateVideoDTO);
+      //Assert
       Assert.IsType<BadRequestObjectResult>(response);
     }
 
   }
-
-  public class FakeVideoService : IVideosService
-  {
-    private List<ReadVideoDTO> _readVideo = new List<ReadVideoDTO>{
-      new ReadVideoDTO(){
-        Categoria = new Models.Categoria(){ Id=1, Title="Ação", Cor="Laranja"},
-        Description = "Novo video",
-        Id = 1,
-        Title = "Video 1",
-        Url = "www.video.com"
-      },new ReadVideoDTO(){
-        Categoria = new Models.Categoria(){ Id=1, Title="Ação", Cor="Laranja"},
-        Description = "Novo video",
-        Id = 1,
-        Title = "Video 1",
-        Url = "www.video.com"
-      },
-      new ReadVideoDTO(){
-        Categoria = new Models.Categoria(){ Id=1, Title="Ação", Cor="Laranja"},
-        Description = "Novo video",
-        Id = 2,
-        Title = "Video 1",
-        Url = "www.video.com"
-      },
-      new ReadVideoDTO(){
-        Categoria = new Models.Categoria(){ Id=1, Title="Ação", Cor="Laranja"},
-        Description = "Novo video",
-        Id = 3,
-        Title = "Video 1",
-        Url = "www.video.com"
-      },
-      new ReadVideoDTO(){
-        Categoria = new Models.Categoria(){ Id=1, Title="Ação", Cor="Laranja"},
-        Description = "Novo video",
-        Id = 4,
-        Title = "Video 1",
-        Url = "www.video.com"
-      }
-    };
-    public Result addVideo(CreateVideoDto videoDto)
-    {
-      if (String.IsNullOrEmpty(videoDto.Title))
-      {
-        return Result.Fail("Item nulo");
-      }
-      return Result.Ok();
-
-    }
-
-    public Result DeleteVideo(int id)
-    {
-      ReadVideoDTO readDto = GetVideoById(id);
-
-      return readDto == null ? Result.Fail("Não encontrado") : Result.Ok();
-    }
-
-    public List<ReadVideoDTO> ShowAllVideos(string? videoTitle)
-    {
-      if (!String.IsNullOrEmpty(videoTitle))
-      {
-        ReadVideoDTO videoFound = _readVideo.Find(video => video.Title == videoTitle);
-        if (videoFound == null)
-          return null;
-      }
-      return _readVideo;
-    }
-
-    public ReadVideoDTO ShowVideoById(int id)
-    {
-      ReadVideoDTO readDto = GetVideoById(id);
-
-      return readDto == null ? null : readDto;
-    }
-
-    private ReadVideoDTO GetVideoById(int id)
-    {
-      return _readVideo.Find(ob => ob.Id == id);
-    }
-
-    public ReadVideoDTO IsValidId(int id)
-    {
-      ReadVideoDTO readDto = GetVideoById(id);
-
-      return readDto == null ? null : readDto;
-    }
-
-    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
-    {
-      return new ReadVideoDTO();
-    }
-
-    public Result ValidDTOFormat(UpdateVideoDTO videoDTO)
-    {
-      if (videoDTO.Url.Equals("www"))
-        return Result.Fail("Invalid data");
-
-      return Result.Ok();
-    }
-  }
-
 }
