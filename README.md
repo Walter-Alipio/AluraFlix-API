@@ -28,6 +28,10 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 
 Definidas as técnologias para criação do projeto, criada a entidade Videos assim como as primeiras rotas para adição, busca, alteração e deleção.
 
+## :construction: Semana 2
+
+Refatorando código.
+
 ## ✔️ Técnicas e tecnologias utilizadas
 
 - `C#`

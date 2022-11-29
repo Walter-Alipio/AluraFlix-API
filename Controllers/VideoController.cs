@@ -1,92 +1,97 @@
-using System.Net;
-using AutoMapper;
+using AluraPlayList.Data.DTOs.VideosDTOs;
+using AluraPlayList.Services.Interfaces;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("[controller]")]
 public class VideosController : ControllerBase
 {
-  private IMapper _mapper;
-  private AppDbContext _context;
+  private IVideosService _videoService;
 
-  public VideosController(AppDbContext context, IMapper mapper)
+  public VideosController(IVideosService videoService)
   {
-    _context = context;
-    _mapper = mapper;
+    _videoService = videoService;
   }
 
-
+  /// <summary>
+  /// Save a new Video.
+  /// </summary>
+  /// <returns></returns>
+  /// <response code="201">If success</response>
+  /// <response code="400">If new item data is incorrect</response>
   [HttpPost]
+  [ProducesResponseType(StatusCodes.Status201Created)]
   public IActionResult addVideo([FromBody] CreateVideoDto videoDto)
   {
-    try
-    {
-      videoDto.urlTest();
-      Video video = _mapper.Map<Video>(videoDto);
-      _context.Videos.Add(video);
-      _context.SaveChanges();
+    Result result = _videoService.addVideo(videoDto);
+    if (result.IsFailed) return BadRequest(result.Errors.First());
 
-      return CreatedAtAction(nameof(showVideoById), new { Id = video.Id }, video);
-    }
-    catch (System.Exception e)
-    {
-
-      return BadRequest(e.Message);
-    }
+    return Created("Video adicionado com sucesso!", result.Successes.FirstOrDefault());
   }
 
+  /// <summary>
+  /// Get Video by Id.
+  /// </summary>
+  /// <returns></returns>
+  /// <response code="200">If success</response>
+  /// <response code="404">If item id is null</response>
   [HttpGet("{id}")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
   public IActionResult showVideoById(int id)
   {
-    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
-    if (video == null)
-    {
-      return NotFound();
-    }
-    ReadVideoDTO videoDTO = _mapper.Map<ReadVideoDTO>(video);
-    return Ok(videoDTO);
-  }
-
-  [HttpGet]
-  public IActionResult showAllVideo()
-  {
-    List<Video> videos = _context.Videos.ToList();
-    if (videos == null)
-    {
-      return NotFound();
-    }
-    List<ReadVideoDTO> readDto = _mapper.Map<List<ReadVideoDTO>>(videos);
+    ReadVideoDTO readDto = _videoService.ShowVideoById(id);
+    if (readDto == null) return NotFound();
 
     return Ok(readDto);
   }
 
-  [HttpPut("{id}")]
-  public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
-  {
-    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
-    if (video == null)
-    {
-      return NotFound();
-    }
 
-    _mapper.Map(videoDTO, video);
-    _context.SaveChanges();
-    return NoContent();
+  /// <summary>
+  /// Get all Videos.
+  /// </summary>
+  /// <returns></returns>
+  /// <response code="200">If success</response>
+  /// <response code="404">If item id is null</response>
+  [HttpGet]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  public IActionResult showAllVideos([FromQuery] string? search)
+  {
+    List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos(search);
+    if (readDtoList == null) return NotFound();
+
+    return Ok(readDtoList);
   }
 
+  /// <summary>
+  /// Update a Video and return JSON with new data.
+  /// </summary>
+  /// <returns></returns>
+  /// <response code="200">If success</response>
+  /// <response code="404">If item id is null</response>
+  [HttpPut("{id}")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
+  {
+    ReadVideoDTO readDto = _videoService.UpdateVideo(id, videoDTO);
+    if (readDto == null) return NotFound();
 
+    return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
+  }
 
+  /// <summary>
+  /// Delete Video.
+  /// </summary>
+  /// <returns></returns>
+  /// <response code="204">If success</response>
+  /// <response code="404">If item id is null</response>
   [HttpDelete("{id}")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
   public IActionResult deleteVideo(int id)
   {
-    Video video = _context.Videos.FirstOrDefault(video => video.Id == id);
-    if (video == null)
-    {
-      return NotFound();
-    }
+    Result result = _videoService.DeleteVideo(id);
+    if (result.IsFailed) return NotFound();
 
-    _context.Remove(video);
-    _context.SaveChanges();
     return NoContent();
   }
 }

@@ -1,11 +1,15 @@
-using System;
-using System.Text.RegularExpressions;
-using System.ComponentModel.DataAnnotations;
 
-namespace AluraPlayList.Data.DTOs.VideosDTOs
+using System.ComponentModel.DataAnnotations;
+namespace AluraPlayList.Models
+
 {
-  public class CreateVideoDto
+  public class Video
   {
+    [Key]
+    [Required]
+    public int Id { get; set; }
+
+
     [Required(ErrorMessage = "Campo Titulo é obrigaório.")]
     [StringLength(100, ErrorMessage = "Tamanho máximo do campo 100 caracteres")]
     public string? Title { get; set; }
@@ -15,11 +19,14 @@ namespace AluraPlayList.Data.DTOs.VideosDTOs
     [StringLength(5000, ErrorMessage = "Tamanho máximo do campo 5000 caracteres")]
     public string? Description { get; set; }
 
+
+
     [Required(ErrorMessage = "Campo URL é obrigaório.")]
     [StringLength(100, ErrorMessage = "Tamanho máximo do campo 100 caracteres")]
     public string? Url { get; set; }
 
-    [Required(ErrorMessage = "Campo CategoriaId é obrigatório.")]
+    [Required]
     public int CategoriaId { get; set; }
+    public virtual Categoria? Categoria { get; set; }
   }
 }
