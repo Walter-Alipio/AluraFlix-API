@@ -1,8 +1,8 @@
-using AluraPlayList.Data.DTOs.VideosDTOs;
+using PlayListAPI.Data.DTOs.VideosDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
-namespace AluraPlayList.tests
+namespace PlayListAPI.tests
 {
   public class VideoControllerTest
   {
