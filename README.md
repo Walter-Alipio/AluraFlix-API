@@ -10,7 +10,7 @@
 
 O objetivo do Alura Challenge é aplicar os conhecimentos obtidos através dos cursos disponíveis na plataforma. Recebemos os casds de desafio ao início de cada uma das 4 semans de challenge. Não há restrição quanto a qual técnologia deva ser utilizada pelos alunos, ficando a cargo de cada um decidir como irá construir o projeto.
 
-### Histŕoia
+### História
 
 Após alguns testes com protótipos feitos pelo time de UX de uma empresa, foi requisitada a primeira versão de uma plataforma para compartilhamento de vídeos. A plataforma deve permitir ao usuário montar playlists com links para seus vídeos preferidos, separados por categorias.<br>
 Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o backend, as principais funcionalidades a serem implementadas são:
