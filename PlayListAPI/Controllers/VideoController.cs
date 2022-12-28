@@ -58,7 +58,7 @@ public class VideosController : ControllerBase
   public IActionResult showAllVideos([FromQuery] string? search)
   {
     List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos(search);
-    if (readDtoList == null) return NotFound();
+    if (!readDtoList.Any()) return NotFound();
 
     return Ok(readDtoList);
   }
