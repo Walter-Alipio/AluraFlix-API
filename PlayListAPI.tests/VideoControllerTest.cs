@@ -3,6 +3,7 @@ using PlayListAPI.Services.Interfaces;
 using PlayListAPI.Data.DTOs.VideosDTOs;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
+using FluentResults;
 
 namespace PlayListAPI.tests;
 
@@ -11,12 +12,46 @@ public class VideosControllerTest
   private Mock<IVideosService> _moqService = new Mock<IVideosService>();
   private VideosController _controller;
 
+  public VideosControllerTest()
+  {
+    _controller = new VideosController(_moqService.Object);
+  }
+
+  [Fact]
+  public void TestAddVideoReturnBadRequest()
+  {
+    // Given
+    CreateVideoDto createVideoDto = new();
+    var result = Result.Fail("");
+    _moqService.Setup(x => x.addVideo(createVideoDto)).Returns(result);
+    // When
+    var response = _controller.addVideo(createVideoDto);
+    // Then
+    Assert.IsType<BadRequestObjectResult>(response);
+  }
+  [Fact]
+  public void TestAddReturnCreated()
+  {
+    // Given
+    CreateVideoDto createVideoDto = new()
+    {
+      Title = "Os Gunnes",
+      Description = "Uma aventura sem igual",
+      Url = "www.youtube.com/wer234"
+    };
+    var result = Result.Ok();
+    _moqService.Setup(x => x.addVideo(createVideoDto)).Returns(result);
+
+    // When
+    var response = _controller.addVideo(createVideoDto);
+    // Then
+    Assert.IsType<CreatedResult>(response);
+  }
+
   [Fact]
   public void TestShowAllVideosReturnNotFound()
   {
     //Arrange
-    _controller = new VideosController(_moqService.Object);
-
     List<ReadVideoDTO> videos = new List<ReadVideoDTO>();
     _moqService.Setup(x => x.ShowAllVideos("")).Returns(videos);
 
@@ -30,7 +65,6 @@ public class VideosControllerTest
   public void TestShowAllVideosReturnOk()
   {
     // Given
-    _controller = new VideosController(_moqService.Object);
     ReadVideoDTO readDto = new ReadVideoDTO()
     {
       Description = "Uma aventura sem igual",
@@ -47,5 +81,6 @@ public class VideosControllerTest
     // Then
     Assert.IsType<OkObjectResult>(result);
   }
+
 
 }
