@@ -17,6 +17,7 @@ public class VideosControllerTest
     _controller = new VideosController(_moqService.Object);
   }
 
+  //POST
   [Fact]
   public void TestAddVideoReturnBadRequest()
   {
@@ -48,6 +49,7 @@ public class VideosControllerTest
     Assert.IsType<CreatedResult>(response);
   }
 
+  //GET
   [Fact]
   public void TestShowAllVideosReturnNotFound()
   {
@@ -60,7 +62,6 @@ public class VideosControllerTest
     //Assert
     Assert.IsType<NotFoundResult>(result);
   }
-
   [Fact]
   public void TestShowAllVideosReturnOk()
   {
@@ -82,5 +83,76 @@ public class VideosControllerTest
     Assert.IsType<OkObjectResult>(result);
   }
 
+  //PUT
+  [Fact]
+  public void TestUpdateVideoReturnBadRequest()
+  {
+    // Given
+    UpdateVideoDTO updateVideoDTO = new();
+    ReadVideoDTO readVideoDTO = new();
+    var result = Result.Fail("");
+    _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
+    _moqService.Setup(x => x.ValidDTOFormat(updateVideoDTO)).Returns(result);
 
+    // When
+    var response = _controller.updateVideo(1, updateVideoDTO);
+    // Then
+    Assert.IsType<BadRequestObjectResult>(response);
+  }
+  [Fact]
+  public void TestUpdateVideoReturnNotFound()
+  {
+    // Given
+    UpdateVideoDTO updateVideoDTO = new();
+    ReadVideoDTO readVideoDTO = new();
+    readVideoDTO = null;
+
+    _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
+
+    // When
+    var response = _controller.updateVideo(1, updateVideoDTO);
+    // Then
+    Assert.IsType<NotFoundResult>(response);
+  }
+  [Fact]
+  public void TestUpdateVideoReturnCreated()
+  {
+    // Given
+    UpdateVideoDTO updateVideoDTO = new();
+    ReadVideoDTO readVideoDTO = new();
+
+    var result = Result.Ok();
+    _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
+    _moqService.Setup(x => x.ValidDTOFormat(updateVideoDTO)).Returns(result);
+    _moqService.Setup(x => x.UpdateVideo(1, updateVideoDTO)).Returns(readVideoDTO);
+
+    // When
+    var response = _controller.updateVideo(1, updateVideoDTO);
+    // Then
+    Assert.IsType<CreatedAtActionResult>(response);
+  }
+
+  //DELETE
+  [Fact]
+  public void TestDeleteVideoReturnNotFound()
+  {
+    // Given
+    Result result = Result.Fail("Não encontrado");
+    _moqService.Setup(x => x.DeleteVideo(1)).Returns(result);
+    // When
+    var response = _controller.deleteVideo(1);
+    // Then
+    Assert.IsType<NotFoundResult>(response);
+  }
+  [Fact]
+  public void TestDeleteVideoReturnNoContent()
+  {
+    // Given
+    Result result = Result.Ok();
+    _moqService.Setup(x => x.DeleteVideo(1)).Returns(result);
+    // When
+    var response = _controller.deleteVideo(1);
+    // Then
+    Assert.IsType<NoContentResult>(response);
+  }
 }
