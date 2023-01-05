@@ -26,6 +26,6 @@ namespace PlayListAPI.Data.DTOs.VideosDTOs
     [StringLength(100, ErrorMessage = "Tamanho máximo do campo 100 caracteres")]
     public string? Url { get; set; }
 
-    public Categoria? Categoria { get; set; }
+    public virtual Categoria? Categoria { get; set; }
   }
 }

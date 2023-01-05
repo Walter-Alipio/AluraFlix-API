@@ -17,6 +17,8 @@ namespace PlayListAPI.Services
       _mapper = mapper;
       _context = context;
     }
+
+
     //POST new video
     public Result addVideo(CreateVideoDto videoDto)
     {
@@ -44,9 +46,10 @@ namespace PlayListAPI.Services
       {
         return null;
       }
+      video.Categoria = _context.Categorias.Where(categoria => video.CategoriaId == categoria.Id).FirstOrDefault();
+      System.Console.WriteLine(video.Categoria);
       return _mapper.Map<ReadVideoDTO>(video);
     }
-
 
     //GET all videos
     public List<ReadVideoDTO> ShowAllVideos(string? videoTitle)
@@ -70,10 +73,59 @@ namespace PlayListAPI.Services
         }
       }
 
+
+      foreach (var video in videos)
+      {
+        video.Categoria = _context.Categorias.Where(categoria => video.CategoriaId == categoria.Id).FirstOrDefault();
+        System.Console.WriteLine(video.Categoria);
+      }
+
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
     //PUT update video information
+    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    {
+
+      Video? video = GetVideoById(id);
+
+      if (videoDTO.CategoriaId == 0)
+        videoDTO.CategoriaId = video.CategoriaId;
+      // {
+      //   return null;
+      // }
+      _mapper.Map(videoDTO, video);
+      _context.SaveChanges();
+      return _mapper.Map<ReadVideoDTO>(video);
+    }
+
+    //DELETE video from database
+    public Result DeleteVideo(int id)
+    {
+
+      Video? video = GetVideoById(id);
+      if (video == null)
+      {
+        return Result.Fail("Video não encontrado.");
+      }
+      _context.Remove(video);
+      _context.SaveChanges();
+      return Result.Ok();
+    }
+
+
+
+    //Checks if video url is a youtube valid url
+    private Result urlTest(VideoDto videoDto)
+    {
+      string[] url = videoDto.Url.Split("=");
+      if (!url[0].Equals(value: _URLCHECK) || url[1].Length != 11)
+      {
+        return Result.Fail("URL INVÁLIDA!");
+      }
+      return Result.Ok();
+    }
+
     public ReadVideoDTO IsValidId(int id)
     {
       Video? video = GetVideoById(id);
@@ -108,47 +160,6 @@ namespace PlayListAPI.Services
 
       return Result.Ok();
     }
-
-    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
-    {
-
-      Video? video = GetVideoById(id);
-
-      if (videoDTO.CategoriaId == 0)
-        videoDTO.CategoriaId = video.CategoriaId;
-      // {
-      //   return null;
-      // }
-      _mapper.Map(videoDTO, video);
-      _context.SaveChanges();
-      return _mapper.Map<ReadVideoDTO>(video);
-    }
-
-    //DELETE video from database
-    public Result DeleteVideo(int id)
-    {
-
-      Video? video = GetVideoById(id);
-      if (video == null)
-      {
-        return Result.Fail("Video não encontrado.");
-      }
-      _context.Remove(video);
-      _context.SaveChanges();
-      return Result.Ok();
-    }
-
-    //Checks if video url is a youtube valid url
-    private Result urlTest(VideoDto videoDto)
-    {
-      string[] url = videoDto.Url.Split("=");
-      if (!url[0].Equals(value: _URLCHECK) || url[1].Length != 11)
-      {
-        return Result.Fail("URL INVÁLIDA!");
-      }
-      return Result.Ok();
-    }
-
     //Search in database 
     private Video? GetVideoById(int id)
     {

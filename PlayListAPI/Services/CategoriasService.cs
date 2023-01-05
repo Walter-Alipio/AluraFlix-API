@@ -3,6 +3,7 @@ using PlayListAPI.Data.DTOs.CategoriasDTOs;
 using PlayListAPI.Models;
 using AutoMapper;
 using FluentResults;
+using PlayListAPI.Data.DTOs.VideosDTOs;
 
 namespace PlayListAPI.Services
 {
@@ -38,13 +39,19 @@ namespace PlayListAPI.Services
     }
 
 
-    public ReadCategoriaWithVideoDto ShowVideosByCategoriaId(int id)
+    public List<ReadVideoDTO> ShowVideosByCategoriaId(int id)
     {
-      Categoria? categoria = GetCategoriaById(id);
+      List<Video>? videoCategoria = _context.Videos.Where(video => video.CategoriaId == id).ToList();
 
-      if (categoria == null) return null;
+      if (!videoCategoria.Any()) return null;
 
-      return _mapper.Map<ReadCategoriaWithVideoDto>(categoria);
+      foreach (var video in videoCategoria)
+      {
+        video.Categoria = _context.Categorias.Where(categoria => video.CategoriaId == categoria.Id).FirstOrDefault();
+        System.Console.WriteLine(video.Categoria);
+      }
+
+      return _mapper.Map<List<ReadVideoDTO>>(videoCategoria);
     }
 
     public List<ReadCategoriasDto> ShowAllCategorias()
