@@ -55,17 +55,17 @@ public class VideosController : ControllerBase
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    ReadVideoDTO selectedVideo = _videoService.IsValidId(id);
+    ReadVideoDTO? selectedVideo = _videoService.IsValidId(id);
     if (selectedVideo == null) return NotFound();
 
     Result result = _videoService.ValidDTOFormat(videoDTO);
 
     if (result.IsFailed) return BadRequest(result.Errors.First());
 
-    ReadVideoDTO readDto = _videoService.UpdateVideo(id, videoDTO);
+    selectedVideo = _videoService.UpdateVideo(id, videoDTO);
 
 
-    return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
+    return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
   }
 
 

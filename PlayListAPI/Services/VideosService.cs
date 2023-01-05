@@ -84,16 +84,15 @@ namespace PlayListAPI.Services
     }
 
     //PUT update video information
-    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    public ReadVideoDTO? UpdateVideo(int id, UpdateVideoDTO videoDTO)
     {
 
       Video? video = GetVideoById(id);
+      if (video == null) return null;
 
       if (videoDTO.CategoriaId == 0)
         videoDTO.CategoriaId = video.CategoriaId;
-      // {
-      //   return null;
-      // }
+
       _mapper.Map(videoDTO, video);
       _context.SaveChanges();
       return _mapper.Map<ReadVideoDTO>(video);
