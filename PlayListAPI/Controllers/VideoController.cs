@@ -14,14 +14,9 @@ public class VideosController : ControllerBase
     _videoService = videoService;
   }
 
-  /// <summary>
-  /// Save a new Video.
-  /// </summary>
-  /// <returns></returns>
-  /// <response code="201">If success</response>
-  /// <response code="400">If new item data is incorrect</response>
   [HttpPost]
   [ProducesResponseType(StatusCodes.Status201Created)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public IActionResult addVideo([FromBody] CreateVideoDto videoDto)
   {
     Result result = _videoService.addVideo(videoDto);
@@ -30,14 +25,10 @@ public class VideosController : ControllerBase
     return Created("Video adicionado com sucesso!", result.Successes.FirstOrDefault());
   }
 
-  /// <summary>
-  /// Get Video by Id.
-  /// </summary>
-  /// <returns></returns>
-  /// <response code="200">If success</response>
-  /// <response code="404">If item id is null</response>
+
   [HttpGet("{id}")]
   [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult showVideoById(int id)
   {
     ReadVideoDTO readDto = _videoService.ShowVideoById(id);
@@ -47,14 +38,10 @@ public class VideosController : ControllerBase
   }
 
 
-  /// <summary>
-  /// Get all Videos.
-  /// </summary>
-  /// <returns></returns>
-  /// <response code="200">If success</response>
-  /// <response code="404">If item id is null</response>
+
   [HttpGet]
   [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult showAllVideos([FromQuery] string? search)
   {
     List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos(search);
@@ -63,14 +50,9 @@ public class VideosController : ControllerBase
     return Ok(readDtoList);
   }
 
-  /// <summary>
-  /// Update a Video and return JSON with new data.
-  /// </summary>
-  /// <returns></returns>
-  /// <response code="200">If success</response>
-  /// <response code="404">If item id is null</response>
   [HttpPut("{id}")]
-  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status201Created)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
     ReadVideoDTO selectedVideo = _videoService.IsValidId(id);
@@ -86,14 +68,10 @@ public class VideosController : ControllerBase
     return CreatedAtAction(nameof(showVideoById), new { Id = readDto.Id }, readDto);
   }
 
-  /// <summary>
-  /// Delete Video.
-  /// </summary>
-  /// <returns></returns>
-  /// <response code="204">If success</response>
-  /// <response code="404">If item id is null</response>
+
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult deleteVideo(int id)
   {
     Result result = _videoService.DeleteVideo(id);
