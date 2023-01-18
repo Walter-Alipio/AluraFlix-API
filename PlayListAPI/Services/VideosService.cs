@@ -39,7 +39,7 @@ namespace PlayListAPI.Services
     }
 
     //GET video by id
-    public ReadVideoDTO ShowVideoById(int id)
+    public ReadVideoDTO? ShowVideoById(int id)
     {
       Video? video = GetVideoById(id);
       if (video == null)
@@ -52,18 +52,17 @@ namespace PlayListAPI.Services
     }
 
     //GET all videos
-    public List<ReadVideoDTO> ShowAllVideos(string? videoTitle)
+    public List<ReadVideoDTO>? ShowAllVideos(string? videoTitle)
     {
       List<Video> videos = _context.Videos.ToList();
       if (videos == null)
       {
         return null;
       }
-      if (videoTitle != null)
+      if (!string.IsNullOrEmpty(videoTitle))
       {
         try
         {
-
           IEnumerable<Video> query = from video in videos where video.Title.Contains(videoTitle) select video;
           videos = query.ToList();
         }
@@ -84,11 +83,11 @@ namespace PlayListAPI.Services
     }
 
     //PUT update video information
-    public ReadVideoDTO? UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
     {
 
-      Video? video = GetVideoById(id);
-      if (video == null) return null;
+      Video? video = GetVideoById(id)!;
+      // if (video == null) return null;
 
       if (videoDTO.CategoriaId == 0)
         videoDTO.CategoriaId = video.CategoriaId;
@@ -117,6 +116,8 @@ namespace PlayListAPI.Services
     //Checks if video url is a youtube valid url
     private Result urlTest(VideoDto videoDto)
     {
+      if (string.IsNullOrEmpty(videoDto.Url)) return Result.Fail("URL INVÁLIDA!");
+
       string[] url = videoDto.Url.Split("=");
       if (!url[0].Equals(value: _URLCHECK) || url[1].Length != 11)
       {
@@ -125,7 +126,7 @@ namespace PlayListAPI.Services
       return Result.Ok();
     }
 
-    public ReadVideoDTO IsValidId(int id)
+    public ReadVideoDTO? IsValidId(int id)
     {
       Video? video = GetVideoById(id);
       if (video == null)
@@ -146,7 +147,7 @@ namespace PlayListAPI.Services
           result = urlTest(videoDTO);
           if (result.IsFailed)
           {
-            throw new Exception(result.Errors.FirstOrDefault().ToString());
+            throw new Exception(result.Errors.First().ToString());
           }
         }
       }

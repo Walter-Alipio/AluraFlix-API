@@ -31,7 +31,7 @@ public class VideosController : ControllerBase
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult showVideoById(int id)
   {
-    ReadVideoDTO readDto = _videoService.ShowVideoById(id);
+    ReadVideoDTO? readDto = _videoService.ShowVideoById(id);
     if (readDto == null) return NotFound();
 
     return Ok(readDto);
@@ -44,7 +44,7 @@ public class VideosController : ControllerBase
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public IActionResult showAllVideos([FromQuery] string? search)
   {
-    List<ReadVideoDTO> readDtoList = _videoService.ShowAllVideos(search);
+    List<ReadVideoDTO>? readDtoList = _videoService.ShowAllVideos(search);
     if (!readDtoList.Any()) return NotFound();
 
     return Ok(readDtoList);
