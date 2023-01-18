@@ -104,7 +104,7 @@ public class VideosControllerTest
   {
     // Given
     UpdateVideoDTO updateVideoDTO = new();
-    ReadVideoDTO readVideoDTO = new();
+    ReadVideoDTO? readVideoDTO = new();
     readVideoDTO = null;
 
     _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
