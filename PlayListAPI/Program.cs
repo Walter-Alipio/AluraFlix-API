@@ -17,7 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 //injetando as services
 builder.Services.AddScoped<IVideosService, VideosService>();
-builder.Services.AddScoped<CategoriasService, CategoriasService>();
+builder.Services.AddScoped<ICategoriasService, CategoriasService>();
 
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

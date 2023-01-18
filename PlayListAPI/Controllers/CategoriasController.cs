@@ -3,6 +3,7 @@ using PlayListAPI.Services;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.Services.Interfaces;
 
 namespace PlayListAPI.Controllers
 {
@@ -10,9 +11,9 @@ namespace PlayListAPI.Controllers
   [Route("[controller]")]
   public class CategoriasController : ControllerBase
   {
-    private CategoriasService _categoriaService;
+    private ICategoriasService _categoriaService;
 
-    public CategoriasController(CategoriasService categoriaService)
+    public CategoriasController(ICategoriasService categoriaService)
     {
       _categoriaService = categoriaService;
     }
@@ -35,7 +36,7 @@ namespace PlayListAPI.Controllers
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult ShowCategoriaById(int id)
     {
-      ReadCategoriasDto readCategoria = _categoriaService.ShowCategoriaById(id);
+      ReadCategoriasDto? readCategoria = _categoriaService.ShowCategoriaById(id);
       if (readCategoria == null) return NotFound();
 
       return Ok(readCategoria);

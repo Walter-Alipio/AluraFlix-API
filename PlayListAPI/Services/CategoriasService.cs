@@ -4,10 +4,12 @@ using PlayListAPI.Models;
 using AutoMapper;
 using FluentResults;
 using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.Services.Interfaces;
 
 namespace PlayListAPI.Services
 {
-  public class CategoriasService
+
+  public class CategoriasService : ICategoriasService
   {
     private IMapper _mapper;
     private AppDbContext _context;
@@ -29,7 +31,7 @@ namespace PlayListAPI.Services
     }
 
 
-    public ReadCategoriasDto ShowCategoriaById(int id)
+    public ReadCategoriasDto? ShowCategoriaById(int id)
     {
       Categoria? categoria = GetCategoriaById(id);
 
