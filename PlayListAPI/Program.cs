@@ -2,6 +2,8 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PlayListAPI.Data;
+using PlayListAPI.Data.DAOs;
+using PlayListAPI.Data.DAOs.Interfaces;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
 
@@ -18,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 //injetando as services
 builder.Services.AddScoped<IVideosService, VideosService>();
 builder.Services.AddScoped<ICategoriasService, CategoriasService>();
+builder.Services.AddScoped<IVideoDAO, VideoDAO>();
 
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
