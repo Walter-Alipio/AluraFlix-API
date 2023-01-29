@@ -17,9 +17,9 @@ public class VideosController : ControllerBase
   [HttpPost]
   [ProducesResponseType(StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  public IActionResult addVideo([FromBody] CreateVideoDto videoDto)
+  public async Task<IActionResult> addVideo([FromBody] CreateVideoDto videoDto)
   {
-    Result result = _videoService.addVideo(videoDto);
+    Result result = await _videoService.AddVideoAsync(videoDto);
     if (result.IsFailed) return BadRequest(result.Errors.First());
 
     return Created("Video adicionado com sucesso!", result.Successes.FirstOrDefault());
@@ -29,23 +29,22 @@ public class VideosController : ControllerBase
   [HttpGet("{id}")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public IActionResult showVideoById(int id)
+  public async Task<IActionResult> showVideoById(int id)
   {
-    ReadVideoDTO? readDto = _videoService.ShowVideoById(id);
+    ReadVideoDTO? readDto = await _videoService.GetVideoByIdAsync(id);
     if (readDto == null) return NotFound();
 
     return Ok(readDto);
   }
 
 
-
   [HttpGet]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public IActionResult showAllVideos([FromQuery] string? search)
+  public async Task<IActionResult> showAllVideos([FromQuery] string? search)
   {
-    List<ReadVideoDTO>? readDtoList = _videoService.ShowAllVideos(search);
-    if (!readDtoList.Any()) return NotFound();
+    List<ReadVideoDTO>? readDtoList = await _videoService.GetVideosAsync(search);
+    if (readDtoList == null || !readDtoList.Any()) return NotFound();
 
     return Ok(readDtoList);
   }
@@ -53,16 +52,16 @@ public class VideosController : ControllerBase
   [HttpPut("{id}")]
   [ProducesResponseType(StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public IActionResult updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
+  public async Task<IActionResult> updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    ReadVideoDTO? selectedVideo = _videoService.IsValidId(id);
+    ReadVideoDTO? selectedVideo = await _videoService.GetVideoByIdAsync(id);
     if (selectedVideo == null) return NotFound();
 
-    Result result = _videoService.ValidDTOFormat(videoDTO);
+    Result result = _videoService.CheckUrl(videoDTO);
 
     if (result.IsFailed) return BadRequest(result.Errors.First());
 
-    selectedVideo = _videoService.UpdateVideo(id, videoDTO);
+    selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
 
 
     return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
@@ -72,9 +71,9 @@ public class VideosController : ControllerBase
   [HttpDelete("{id}")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public IActionResult deleteVideo(int id)
+  public async Task<IActionResult> deleteVideo(int id)
   {
-    Result result = _videoService.DeleteVideo(id);
+    Result result = await _videoService.DeleteVideoAsync(id);
     if (result.IsFailed) return NotFound();
 
     return NoContent();
