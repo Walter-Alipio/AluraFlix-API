@@ -4,25 +4,26 @@ using PlayListAPI.Models;
 using PlayListAPI.Services.Interfaces;
 using AutoMapper;
 using FluentResults;
+using Microsoft.EntityFrameworkCore;
+using PlayListAPI.Data.DAOs.Interfaces;
 
 namespace PlayListAPI.Services
 {
   public class VideosService : IVideosService
   {
     private IMapper _mapper;
-    private AppDbContext _context;
-    private static string _URLCHECK = "https://www.youtube.com/watch?v";
-    public VideosService(IMapper mapper, AppDbContext context)
+    private IVideoDAO _dao;
+    public VideosService(IMapper mapper, IVideoDAO dao)
     {
       _mapper = mapper;
-      _context = context;
+      _dao = dao;
     }
 
 
     //POST new video
-    public Result addVideo(CreateVideoDto videoDto)
+    public async Task<Result> AddVideoAsync(CreateVideoDto videoDto)
     {
-      Result resultado = urlTest(videoDto);
+      Result resultado = CheckUrlPattern(videoDto);
       if (videoDto.CategoriaId == 0)
       {
         videoDto.CategoriaId = 1;
@@ -31,120 +32,98 @@ namespace PlayListAPI.Services
       if (resultado.IsFailed) return resultado;
 
       Video video = _mapper.Map<Video>(videoDto);
-      _context.Videos.Add(video);
-      _context.SaveChanges();
+
+      await _dao.AddAsync(video);
 
       ReadVideoDTO readDto = _mapper.Map<ReadVideoDTO>(video);
       return Result.Ok();
     }
 
     //GET video by id
-    public ReadVideoDTO? ShowVideoById(int id)
+    public async Task<ReadVideoDTO?> GetVideoByIdAsync(int id)
     {
-      Video? video = GetVideoById(id);
+      Video? video = await _dao.GetByIdAsync(id);
       if (video == null)
       {
         return null;
       }
-      video.Categoria = _context.Categorias.Where(categoria => video.CategoriaId == categoria.Id).FirstOrDefault();
-      System.Console.WriteLine(video.Categoria);
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
     //GET all videos
-    public List<ReadVideoDTO>? ShowAllVideos(string? videoTitle)
+    public async Task<List<ReadVideoDTO>?> GetVideosAsync(string? videoTitle)
     {
-      List<Video> videos = _context.Videos.ToList();
-      if (videos == null)
+      List<Video> videos = await _dao.GetVideos();
+      if (!videos.Any())
       {
         return null;
       }
+
       if (!string.IsNullOrEmpty(videoTitle))
       {
-        try
-        {
-          IEnumerable<Video> query = from video in videos where video.Title.Contains(videoTitle) select video;
-          videos = query.ToList();
-        }
-        catch
-        {
-          return null;
-        }
-      }
-
-
-      foreach (var video in videos)
-      {
-        video.Categoria = _context.Categorias.Where(categoria => video.CategoriaId == categoria.Id).FirstOrDefault();
-        System.Console.WriteLine(video.Categoria);
+        videos = videos.Where(v => v.Title.Contains(videoTitle)).ToList();
       }
 
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
     //PUT update video information
-    public ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO)
+    public async Task<ReadVideoDTO> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO)
     {
 
-      Video? video = GetVideoById(id)!;
-      // if (video == null) return null;
+      Video? video = await _dao.GetByIdAsync(id)!;
+      if (video == null) return null;
 
       if (videoDTO.CategoriaId == 0)
         videoDTO.CategoriaId = video.CategoriaId;
 
       _mapper.Map(videoDTO, video);
-      _context.SaveChanges();
+
+      _dao.UpdateAsync(video);
+
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
     //DELETE video from database
-    public Result DeleteVideo(int id)
+    public async Task<Result> DeleteVideoAsync(int id)
     {
 
-      Video? video = GetVideoById(id);
+      Video? video = await _dao.GetByIdAsync(id);
       if (video == null)
       {
         return Result.Fail("Video não encontrado.");
       }
-      _context.Remove(video);
-      _context.SaveChanges();
+
+      _dao.Delete(video);
+
       return Result.Ok();
     }
 
-
-
     //Checks if video url is a youtube valid url
-    private Result urlTest(VideoDto videoDto)
+    private Result CheckUrlPattern(VideoDto videoDto)
     {
       if (string.IsNullOrEmpty(videoDto.Url)) return Result.Fail("URL INVÁLIDA!");
 
+      var urlDefault = "https://www.youtube.com/watch?v";
+
       string[] url = videoDto.Url.Split("=");
-      if (!url[0].Equals(value: _URLCHECK) || url[1].Length != 11)
+
+      if (!url[0].Equals(value: urlDefault) || url[1].Length != 11)
       {
         return Result.Fail("URL INVÁLIDA!");
       }
       return Result.Ok();
     }
 
-    public ReadVideoDTO? IsValidId(int id)
-    {
-      Video? video = GetVideoById(id);
-      if (video == null)
-      {
-        return null;
-      }
 
-      return _mapper.Map<ReadVideoDTO>(video);
-    }
-
-    public Result ValidDTOFormat(UpdateVideoDTO videoDTO)
+    public Result CheckUrl(UpdateVideoDTO videoDTO)
     {
       try
       {
         Result result;
         if (!String.IsNullOrEmpty(videoDTO.Url))
         {
-          result = urlTest(videoDTO);
+          result = CheckUrlPattern(videoDTO);
           if (result.IsFailed)
           {
             throw new Exception(result.Errors.First().ToString());
@@ -159,11 +138,6 @@ namespace PlayListAPI.Services
       }
 
       return Result.Ok();
-    }
-    //Search in database 
-    private Video? GetVideoById(int id)
-    {
-      return _context.Videos.FirstOrDefault(video => video.Id == id);
     }
 
 
