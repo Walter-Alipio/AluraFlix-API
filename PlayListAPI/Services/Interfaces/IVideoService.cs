@@ -5,12 +5,11 @@ namespace PlayListAPI.Services.Interfaces
 {
   public interface IVideosService
   {
-    Result addVideo(CreateVideoDto videoDto);
-    Result DeleteVideo(int id);
-    ReadVideoDTO? IsValidId(int id);
-    List<ReadVideoDTO>? ShowAllVideos(string? videoTitle);
-    ReadVideoDTO? ShowVideoById(int id);
-    ReadVideoDTO UpdateVideo(int id, UpdateVideoDTO videoDTO);
-    Result ValidDTOFormat(UpdateVideoDTO videoDTO);
+    Task<Result> AddVideoAsync(CreateVideoDto videoDto);
+    Task<Result> DeleteVideoAsync(int id);
+    Task<List<ReadVideoDTO>?> GetVideosAsync(string? videoTitle);
+    Task<ReadVideoDTO?> GetVideoByIdAsync(int id);
+    Task<ReadVideoDTO> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO);
+    Result CheckUrl(UpdateVideoDTO videoDTO);
   }
 }
