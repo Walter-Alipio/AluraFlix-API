@@ -19,19 +19,19 @@ public class VideosControllerTest
 
   //POST
   [Fact]
-  public void TestAddVideoReturnBadRequest()
+  public async void TestAddVideoReturnBadRequest()
   {
     // Given
     CreateVideoDto createVideoDto = new();
     var result = Result.Fail("");
-    _moqService.Setup(x => x.addVideo(createVideoDto)).Returns(result);
+    _moqService.Setup(x => x.AddVideoAsync(createVideoDto)).Returns(Task.FromResult(result));
     // When
-    var response = _controller.addVideo(createVideoDto);
+    var response = await _controller.addVideo(createVideoDto);
     // Then
     Assert.IsType<BadRequestObjectResult>(response);
   }
   [Fact]
-  public void TestAddReturnCreated()
+  public async Task TestAddReturnCreatedAsync()
   {
     // Given
     CreateVideoDto createVideoDto = new()
@@ -41,29 +41,29 @@ public class VideosControllerTest
       Url = "www.youtube.com/wer234"
     };
     var result = Result.Ok();
-    _moqService.Setup(x => x.addVideo(createVideoDto)).Returns(result);
+    _moqService.Setup(x => x.AddVideoAsync(createVideoDto)).Returns(Task.FromResult(result));
 
     // When
-    var response = _controller.addVideo(createVideoDto);
+    var response = await _controller.addVideo(createVideoDto);
     // Then
     Assert.IsType<CreatedResult>(response);
   }
 
   //GET
   [Fact]
-  public void TestShowAllVideosReturnNotFound()
+  public async Task TestShowAllVideosReturnNotFoundAsync()
   {
     //Arrange
     List<ReadVideoDTO> videos = new List<ReadVideoDTO>();
-    _moqService.Setup(x => x.ShowAllVideos("")).Returns(videos);
+    _moqService.Setup(x => x.GetVideosAsync("")).Returns(Task.FromResult<List<ReadVideoDTO>?>(videos));
 
     //Act
-    var result = _controller.showAllVideos("");
+    var result = await _controller.showAllVideos("");
     //Assert
     Assert.IsType<NotFoundResult>(result);
   }
   [Fact]
-  public void TestShowAllVideosReturnOk()
+  public async void TestShowAllVideosReturnOk()
   {
     // Given
     ReadVideoDTO readDto = new ReadVideoDTO()
@@ -75,83 +75,83 @@ public class VideosControllerTest
     };
 
     List<ReadVideoDTO> videos = new List<ReadVideoDTO>() { readDto };
-    _moqService.Setup(x => x.ShowAllVideos("")).Returns(videos);
+    _moqService.Setup(x => x.GetVideosAsync("")).Returns(Task.FromResult<List<ReadVideoDTO>?>(videos));
 
     // When
-    var result = _controller.showAllVideos("");
+    var result = await _controller.showAllVideos("");
     // Then
     Assert.IsType<OkObjectResult>(result);
   }
 
   //PUT
   [Fact]
-  public void TestUpdateVideoReturnBadRequest()
+  public async void TestUpdateVideoReturnBadRequest()
   {
     // Given
     UpdateVideoDTO updateVideoDTO = new();
     ReadVideoDTO readVideoDTO = new();
     var result = Result.Fail("");
-    _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
-    _moqService.Setup(x => x.ValidDTOFormat(updateVideoDTO)).Returns(result);
+    _moqService.Setup(x => x.GetVideoByIdAsync(1)).Returns(Task.FromResult<ReadVideoDTO?>(readVideoDTO));
+    _moqService.Setup(x => x.CheckUrl(updateVideoDTO)).Returns(result);
 
     // When
-    var response = _controller.updateVideo(1, updateVideoDTO);
+    var response = await _controller.updateVideo(1, updateVideoDTO);
     // Then
     Assert.IsType<BadRequestObjectResult>(response);
   }
   [Fact]
-  public void TestUpdateVideoReturnNotFound()
+  public async void TestUpdateVideoReturnNotFound()
   {
     // Given
     UpdateVideoDTO updateVideoDTO = new();
     ReadVideoDTO? readVideoDTO = new();
     readVideoDTO = null;
 
-    _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
+    _moqService.Setup(x => x.GetVideoByIdAsync(1)).Returns(Task.FromResult(readVideoDTO));
 
     // When
-    var response = _controller.updateVideo(1, updateVideoDTO);
+    var response = await _controller.updateVideo(1, updateVideoDTO);
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
   [Fact]
-  public void TestUpdateVideoReturnCreated()
+  public async void TestUpdateVideoReturnCreated()
   {
     // Given
     UpdateVideoDTO updateVideoDTO = new();
     ReadVideoDTO readVideoDTO = new();
 
     var result = Result.Ok();
-    _moqService.Setup(x => x.IsValidId(1)).Returns(readVideoDTO);
-    _moqService.Setup(x => x.ValidDTOFormat(updateVideoDTO)).Returns(result);
-    _moqService.Setup(x => x.UpdateVideo(1, updateVideoDTO)).Returns(readVideoDTO);
+    _moqService.Setup(x => x.GetVideoByIdAsync(1)).Returns(Task.FromResult<ReadVideoDTO?>(readVideoDTO));
+    _moqService.Setup(x => x.CheckUrl(updateVideoDTO)).Returns(result);
+    _moqService.Setup(x => x.UpdateVideoAsync(1, updateVideoDTO)).Returns(Task.FromResult(readVideoDTO));
 
     // When
-    var response = _controller.updateVideo(1, updateVideoDTO);
+    var response = await _controller.updateVideo(1, updateVideoDTO);
     // Then
     Assert.IsType<CreatedAtActionResult>(response);
   }
 
   //DELETE
   [Fact]
-  public void TestDeleteVideoReturnNotFound()
+  public async void TestDeleteVideoReturnNotFound()
   {
     // Given
     Result result = Result.Fail("Não encontrado");
-    _moqService.Setup(x => x.DeleteVideo(1)).Returns(result);
+    _moqService.Setup(x => x.DeleteVideoAsync(1)).Returns(Task.FromResult(result));
     // When
-    var response = _controller.deleteVideo(1);
+    var response = await _controller.deleteVideo(1);
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
   [Fact]
-  public void TestDeleteVideoReturnNoContent()
+  public async void TestDeleteVideoReturnNoContent()
   {
     // Given
     Result result = Result.Ok();
-    _moqService.Setup(x => x.DeleteVideo(1)).Returns(result);
+    _moqService.Setup(x => x.DeleteVideoAsync(1)).Returns(Task.FromResult(result));
     // When
-    var response = _controller.deleteVideo(1);
+    var response = await _controller.deleteVideo(1);
     // Then
     Assert.IsType<NoContentResult>(response);
   }
