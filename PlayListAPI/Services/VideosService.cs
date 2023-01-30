@@ -99,7 +99,7 @@ namespace PlayListAPI.Services
     }
 
 
-    //Checks if video url is a youtube valid url
+    //Checks for youtube valid url 
     private Result CheckUrlPattern(VideoDto videoDto)
     {
       if (string.IsNullOrEmpty(videoDto.Url)) return Result.Fail("URL INVÁLIDA!");
