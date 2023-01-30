@@ -54,15 +54,12 @@ public class VideosController : ControllerBase
   [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<IActionResult> updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    ReadVideoDTO? selectedVideo = await _videoService.GetVideoByIdAsync(id);
-    if (selectedVideo == null) return NotFound();
-
     Result result = _videoService.CheckUrl(videoDTO);
 
     if (result.IsFailed) return BadRequest(result.Errors.First());
 
-    selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
-
+    ReadVideoDTO? selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
+    if (selectedVideo == null) return NotFound();
 
     return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
   }
