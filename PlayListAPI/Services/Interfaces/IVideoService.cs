@@ -9,7 +9,7 @@ namespace PlayListAPI.Services.Interfaces
     Task<Result> DeleteVideoAsync(int id);
     Task<List<ReadVideoDTO>?> GetVideosAsync(string? videoTitle);
     Task<ReadVideoDTO?> GetVideoByIdAsync(int id);
-    Task<ReadVideoDTO> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO);
+    Task<ReadVideoDTO?> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO);
     Result CheckUrl(UpdateVideoDTO videoDTO);
   }
 }
