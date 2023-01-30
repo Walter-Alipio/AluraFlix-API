@@ -91,7 +91,6 @@ public class VideosControllerTest
     UpdateVideoDTO updateVideoDTO = new();
     ReadVideoDTO readVideoDTO = new();
     var result = Result.Fail("");
-    _moqService.Setup(x => x.GetVideoByIdAsync(1)).Returns(Task.FromResult<ReadVideoDTO?>(readVideoDTO));
     _moqService.Setup(x => x.CheckUrl(updateVideoDTO)).Returns(result);
 
     // When
@@ -106,8 +105,8 @@ public class VideosControllerTest
     UpdateVideoDTO updateVideoDTO = new();
     ReadVideoDTO? readVideoDTO = new();
     readVideoDTO = null;
-
-    _moqService.Setup(x => x.GetVideoByIdAsync(1)).Returns(Task.FromResult(readVideoDTO));
+    _moqService.Setup(s => s.CheckUrl(updateVideoDTO)).Returns(Result.Ok());
+    _moqService.Setup(s => s.UpdateVideoAsync(1, updateVideoDTO)).Returns(Task.FromResult<ReadVideoDTO?>(null));
 
     // When
     var response = await _controller.updateVideo(1, updateVideoDTO);
@@ -122,9 +121,9 @@ public class VideosControllerTest
     ReadVideoDTO readVideoDTO = new();
 
     var result = Result.Ok();
-    _moqService.Setup(x => x.GetVideoByIdAsync(1)).Returns(Task.FromResult<ReadVideoDTO?>(readVideoDTO));
+
     _moqService.Setup(x => x.CheckUrl(updateVideoDTO)).Returns(result);
-    _moqService.Setup(x => x.UpdateVideoAsync(1, updateVideoDTO)).Returns(Task.FromResult(readVideoDTO));
+    _moqService.Setup(x => x.UpdateVideoAsync(1, updateVideoDTO)).Returns(Task.FromResult<ReadVideoDTO?>(readVideoDTO));
 
     // When
     var response = await _controller.updateVideo(1, updateVideoDTO);
