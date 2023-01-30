@@ -20,6 +20,6 @@ namespace PlayListAPI.Data.DTOs.VideosDTOs
     public override string? Url { get; set; }
 
     [Required(ErrorMessage = "Campo CategoriaId é obrigatório.")]
-    public override int? CategoriaId { get; set; }
+    public override int? CategoriaId { get; set; } = 1;
   }
 }
