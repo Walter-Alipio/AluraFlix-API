@@ -18,7 +18,7 @@ namespace PlayListAPI.Services
     }
 
 
-    //POST new video
+
     public async Task<Result> AddVideoAsync(CreateVideoDto videoDto)
     {
       Result resultado = CheckUrlPattern(videoDto);
@@ -35,7 +35,7 @@ namespace PlayListAPI.Services
       return Result.Ok();
     }
 
-    //GET video by id
+
     public async Task<ReadVideoDTO?> GetVideoByIdAsync(int id)
     {
       Video? video = await _dao.GetByIdAsync(id);
@@ -46,7 +46,7 @@ namespace PlayListAPI.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
-    //GET all videos
+
     public async Task<List<ReadVideoDTO>?> GetVideosAsync(string? videoTitle)
     {
       List<Video> videos = await _dao.GetVideos();
@@ -70,7 +70,7 @@ namespace PlayListAPI.Services
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
-    //PUT update video information
+
     public async Task<ReadVideoDTO?> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO)
     {
 
@@ -84,7 +84,7 @@ namespace PlayListAPI.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
-    //DELETE video from database
+
     public async Task<Result> DeleteVideoAsync(int id)
     {
       Video? video = await _dao.GetByIdAsync(id);
@@ -99,7 +99,7 @@ namespace PlayListAPI.Services
     }
 
 
-    //Checks for youtube valid url 
+
     private Result CheckUrlPattern(VideoDto videoDto)
     {
       if (string.IsNullOrEmpty(videoDto.Url)) return Result.Fail("URL INVÁLIDA!");
