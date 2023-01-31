@@ -9,7 +9,9 @@ namespace PlayListAPI.Profiles
     public CategoriasProfile()
     {
       CreateMap<CreateCategoriasDto, Categoria>();
+
       CreateMap<Categoria, ReadCategoriasDto>();
+
       CreateMap<Categoria, ReadCategoriaWithVideoDto>()
         .ForMember(categoria => categoria.Videos, opts =>
           opts.MapFrom(categoria => categoria.Videos

@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PlayListAPI.Data;
@@ -19,7 +18,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 //injetando as services
 builder.Services.AddScoped<IVideosService, VideosService>();
-builder.Services.AddScoped<ICategoriasService, CategoriasService>();
+builder.Services.AddScoped<ICategoriaDAO, CategoriaDAO>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IVideoDAO, VideoDAO>();
 
 //Automapper
