@@ -1,5 +1,4 @@
 using PlayListAPI.Data.DTOs.CategoriasDTOs;
-using PlayListAPI.Services;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using PlayListAPI.Data.DTOs.VideosDTOs;
@@ -11,9 +10,9 @@ namespace PlayListAPI.Controllers
   [Route("[controller]")]
   public class CategoriasController : ControllerBase
   {
-    private ICategoriasService _categoriaService;
+    private ICategoriaService _categoriaService;
 
-    public CategoriasController(ICategoriasService categoriaService)
+    public CategoriasController(ICategoriaService categoriaService)
     {
       _categoriaService = categoriaService;
     }
@@ -22,9 +21,9 @@ namespace PlayListAPI.Controllers
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult AddCategoria([FromBody] CreateCategoriasDto categoriaDto)
+    public async Task<IActionResult> AddCategoria([FromBody] CreateCategoriasDto categoriaDto)
     {
-      ReadCategoriasDto readCategoria = _categoriaService.AddCategoria(categoriaDto);
+      ReadCategoriasDto? readCategoria = await _categoriaService.AddCategoriaAsync(categoriaDto);
       if (readCategoria == null) return BadRequest(readCategoria);
 
       return CreatedAtAction(nameof(ShowCategoriaById), new { Id = readCategoria.Id }, readCategoria);
@@ -34,9 +33,9 @@ namespace PlayListAPI.Controllers
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult ShowCategoriaById(int id)
+    public async Task<IActionResult> ShowCategoriaById(int id)
     {
-      ReadCategoriasDto? readCategoria = _categoriaService.ShowCategoriaById(id);
+      ReadCategoriasDto? readCategoria = await _categoriaService.ShowCategoriaByIdAsync(id);
       if (readCategoria == null) return NotFound();
 
       return Ok(readCategoria);
@@ -46,9 +45,9 @@ namespace PlayListAPI.Controllers
     [HttpGet("{id}/videos")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult ShowVideosByCategoriaId(int id)
+    public async Task<IActionResult> ShowVideosByCategoriaId(int id)
     {
-      List<ReadVideoDTO> readVideoCategoria = _categoriaService.ShowVideosByCategoriaId(id);
+      List<ReadVideoDTO> readVideoCategoria = await _categoriaService.ShowVideosByCategoriaIdAsync(id);
       if (readVideoCategoria == null) return NotFound();
 
       return Ok(readVideoCategoria);
@@ -57,9 +56,9 @@ namespace PlayListAPI.Controllers
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult ShowAllCategorias()
+    public async Task<IActionResult> ShowAllCategorias()
     {
-      List<ReadCategoriasDto> categoriasDtos = _categoriaService.ShowAllCategorias();
+      List<ReadCategoriasDto> categoriasDtos = await _categoriaService.ShowAllCategoriasAsync();
       if (!categoriasDtos.Any()) return NotFound();
 
       return Ok(categoriasDtos);
@@ -69,9 +68,9 @@ namespace PlayListAPI.Controllers
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult UpdateCategoria(int id, [FromBody] UpdateCategoriasDtos updateDto)
+    public async Task<IActionResult> UpdateCategoria(int id, [FromBody] UpdateCategoriasDtos updateDto)
     {
-      ReadCategoriasDto categoriasDto = _categoriaService.UpdateCategoria(id, updateDto);
+      ReadCategoriasDto? categoriasDto = await _categoriaService.UpdateCategoriaAsync(id, updateDto);
       if (categoriasDto == null) return NotFound();
 
       return CreatedAtAction(nameof(ShowCategoriaById), new { Id = categoriasDto.Id }, categoriasDto);
@@ -81,9 +80,9 @@ namespace PlayListAPI.Controllers
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult DeleteCategorias(int id)
+    public async Task<IActionResult> DeleteCategorias(int id)
     {
-      Result result = _categoriaService.DeleteCategorias(id);
+      Result result = await _categoriaService.DeleteCategoriasAsync(id);
       if (result.IsFailed) return NotFound();
 
       return NoContent();
