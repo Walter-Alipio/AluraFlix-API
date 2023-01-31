@@ -10,7 +10,7 @@ namespace PlayListAPI.tests;
 
 public class CategoriasControllerTest
 {
-  private Mock<ICategoriasService> _moqService = new Mock<ICategoriasService>();
+  private Mock<ICategoriaService> _moqService = new Mock<ICategoriaService>();
   private CategoriasController _controller;
   public CategoriasControllerTest()
   {
@@ -18,149 +18,155 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public void TestAddCategoriaReturnsBadRequest()
+  public async void TestAddCategoriaReturnsBadRequest()
   {
     // Given
     CreateCategoriasDto createDto = new CreateCategoriasDto();
     // When
-    var response = _controller.AddCategoria(createDto);
+    var response = await _controller.AddCategoria(createDto);
     // Then
     Assert.IsType<BadRequestObjectResult>(response);
   }
 
   [Fact]
-  public void TestAddCategoriaReturnsCreated()
+  public async void TestAddCategoriaReturnsCreated()
   {
     // Given
     CreateCategoriasDto createDto = new CreateCategoriasDto();
     ReadCategoriasDto readDto = new ReadCategoriasDto();
 
-    _moqService.Setup(x => x.AddCategoria(createDto)).Returns(readDto);
+    _moqService.Setup(x => x.AddCategoriaAsync(createDto))
+      .Returns(Task.FromResult<ReadCategoriasDto?>(readDto));
     // When
-    var response = _controller.AddCategoria(createDto);
+    var response = await _controller.AddCategoria(createDto);
     // Then
     Assert.IsType<CreatedAtActionResult>(response);
   }
 
   [Fact]
-  public void TestShowCategoriaByIdReturnsNotFound()
+  public async void TestShowCategoriaByIdReturnsNotFound()
   {
     // Given
     // When
-    var response = _controller.ShowCategoriaById(1);
+    var response = await _controller.ShowCategoriaById(1);
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
 
   [Fact]
-  public void TestShowCategoriaByIdReturnsOk()
+  public async void TestShowCategoriaByIdReturnsOk()
   {
     // Given
     ReadCategoriasDto readDto = new ReadCategoriasDto();
 
-    _moqService.Setup(x => x.ShowCategoriaById(1)).Returns(readDto);
+    _moqService.Setup(x => x.ShowCategoriaByIdAsync(1))
+      .Returns(Task.FromResult<ReadCategoriasDto?>(readDto));
     // When
-    var response = _controller.ShowCategoriaById(1);
+    var response = await _controller.ShowCategoriaById(1);
     // Then
     Assert.IsType<OkObjectResult>(response);
   }
 
   [Fact]
-  public void TestShowVideosByCategoriaIdReturnsNotFound()
+  public async void TestShowVideosByCategoriaIdReturnsNotFound()
   {
     // Given
     // When
-    var response = _controller.ShowVideosByCategoriaId(1);
+    var response = await _controller.ShowVideosByCategoriaId(1);
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
 
   [Fact]
-  public void TestShowVideosByCategoriaIdReturnsOk()
+  public async void TestShowVideosByCategoriaIdReturnsOk()
   {
     // Given
     List<ReadVideoDTO> readDto = new();
 
-    _moqService.Setup(x => x.ShowVideosByCategoriaId(1)).Returns(readDto);
+    _moqService.Setup(x => x.ShowVideosByCategoriaIdAsync(1))
+      .Returns(Task.FromResult(readDto));
     // When
-    var response = _controller.ShowVideosByCategoriaId(1);
+    var response = await _controller.ShowVideosByCategoriaId(1);
     // Then
     Assert.IsType<OkObjectResult>(response);
   }
 
   [Fact]
-  public void TestShowAllCategoriasReturnsNotFound()
+  public async void TestShowAllCategoriasReturnsNotFound()
   {
     // Given
     List<ReadCategoriasDto> categoriasDtos = new();
-    _moqService.Setup(x => x.ShowAllCategorias()).Returns(categoriasDtos);
+    _moqService.Setup(x => x.ShowAllCategoriasAsync())
+      .Returns(Task.FromResult(categoriasDtos));
     // When
-    var response = _controller.ShowAllCategorias();
+    var response = await _controller.ShowAllCategorias();
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
 
   [Fact]
-  public void TestShowAllCategoriasReturnsOk()
+  public async void TestShowAllCategoriasReturnsOk()
   {
     // Given
     ReadCategoriasDto readDto = new ReadCategoriasDto();
     List<ReadCategoriasDto> categoriasDtos = new();
     categoriasDtos.Add(readDto);
-    _moqService.Setup(x => x.ShowAllCategorias()).Returns(categoriasDtos);
+    _moqService.Setup(x => x.ShowAllCategoriasAsync())
+      .Returns(Task.FromResult(categoriasDtos));
+
     // When
-    var response = _controller.ShowAllCategorias();
+    var response = await _controller.ShowAllCategorias();
     // Then
     Assert.IsType<OkObjectResult>(response);
   }
 
   [Fact]
-  public void TestUpdateCategoriaReturnsNotFound()
+  public async void TestUpdateCategoriaReturnsNotFound()
   {
     // Given
     UpdateCategoriasDtos updateDto = new();
     // When
-
-    var response = _controller.UpdateCategoria(1, updateDto);
+    var response = await _controller.UpdateCategoria(1, updateDto);
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
 
   [Fact]
-  public void TestUpdateCategoriaReturnsCreated()
+  public async void TestUpdateCategoriaReturnsCreated()
   {
     // Given
     UpdateCategoriasDtos updateDto = new();
     ReadCategoriasDto readDto = new();
 
-    _moqService.Setup(x => x.UpdateCategoria(1, updateDto)).Returns(readDto);
+    _moqService.Setup(x => x.UpdateCategoriaAsync(1, updateDto))
+      .Returns(Task.FromResult<ReadCategoriasDto?>(readDto));
     // When
 
-    var response = _controller.UpdateCategoria(1, updateDto);
+    var response = await _controller.UpdateCategoria(1, updateDto);
     // Then
     Assert.IsType<CreatedAtActionResult>(response);
   }
 
   [Fact]
-  public void TestDeleteCategoriaReturnsNotFound()
+  public async void TestDeleteCategoriaReturnsNotFound()
   {
     // Given
     Result result = Result.Fail("Não encontrado");
-    _moqService.Setup(x => x.DeleteCategorias(1)).Returns(result);
+    _moqService.Setup(x => x.DeleteCategoriasAsync(1)).Returns(Task.FromResult(result));
     // When
-    var response = _controller.DeleteCategorias(1);
+    var response = await _controller.DeleteCategorias(1);
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
 
   [Fact]
-  public void TestDeleteCategoriaReturnsNoContent()
+  public async void TestDeleteCategoriaReturnsNoContent()
   {
     // Given
     Result result = Result.Ok();
-    _moqService.Setup(x => x.DeleteCategorias(1)).Returns(result);
+    _moqService.Setup(x => x.DeleteCategoriasAsync(1)).Returns(Task.FromResult(result));
     // When
-    var response = _controller.DeleteCategorias(1);
+    var response = await _controller.DeleteCategorias(1);
     // Then
     Assert.IsType<NoContentResult>(response);
   }
