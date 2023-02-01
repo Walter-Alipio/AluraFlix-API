@@ -23,8 +23,7 @@ public class VideosControllerTest
   {
     // Given
     CreateVideoDto createVideoDto = new();
-    var result = Result.Fail("");
-    _moqService.Setup(x => x.AddVideoAsync(createVideoDto)).Returns(Task.FromResult(result));
+    _moqService.Setup(x => x.AddVideoAsync(createVideoDto)).Returns(Task.FromResult<ReadVideoDTO?>(null));
     // When
     var response = await _controller.addVideo(createVideoDto);
     // Then
@@ -40,8 +39,8 @@ public class VideosControllerTest
       Description = "Uma aventura sem igual",
       Url = "www.youtube.com/wer234"
     };
-    var result = Result.Ok();
-    _moqService.Setup(x => x.AddVideoAsync(createVideoDto)).Returns(Task.FromResult(result));
+    var result = new ReadVideoDTO();
+    _moqService.Setup(x => x.AddVideoAsync(createVideoDto)).Returns(Task.FromResult<ReadVideoDTO?>(result));
 
     // When
     var response = await _controller.addVideo(createVideoDto);

@@ -179,7 +179,7 @@ public class VideoServiceTest
     // When
     var result = await _service.AddVideoAsync(videoDto);
     // Then
-    Assert.True(result.IsFailed);
+    Assert.Null(result);
   }
 
   [Fact]
@@ -198,7 +198,7 @@ public class VideoServiceTest
     var result = await _service.AddVideoAsync(videoDto);
     // Then
 
-    Assert.True(result.IsSuccess);
+    Assert.IsType<ReadVideoDTO>(result);
   }
 
 }
