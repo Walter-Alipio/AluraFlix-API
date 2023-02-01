@@ -40,7 +40,7 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 - [x] Criar uma rota `GET` relacionando `categorias` e `videos`, exemplo: `GET categorias/:id/videos/`.
 - [x] Criar uma rota que busque vídeos por nome via `query parameters`, exemplo: `GET /videos/?search=jogos`.
 - [x] A categoria com `ID = 1`, deve chamar `LIVRE` e caso ela não seja especificada na criação do vídeo, atribuir o `ID = 1`.
-- [ ] Criar testes de unidade para os modelos e controller.
+- [x] Criar testes de unidade para os modelos e controller.
 - [ ] Crie testes de integração.
 
 ## ✔️ Tecnologias utilizadas
