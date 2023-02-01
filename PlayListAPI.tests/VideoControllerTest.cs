@@ -45,7 +45,7 @@ public class VideosControllerTest
     // When
     var response = await _controller.addVideo(createVideoDto);
     // Then
-    Assert.IsType<CreatedResult>(response);
+    Assert.IsType<CreatedAtActionResult>(response);
   }
 
   //GET

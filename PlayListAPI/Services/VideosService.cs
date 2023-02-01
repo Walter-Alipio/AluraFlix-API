@@ -19,20 +19,20 @@ namespace PlayListAPI.Services
 
 
 
-    public async Task<Result> AddVideoAsync(CreateVideoDto videoDto)
+    public async Task<ReadVideoDTO?> AddVideoAsync(CreateVideoDto videoDto)
     {
       Result resultado = CheckUrlPattern(videoDto);
 
       if (resultado.IsFailed)
       {
-        return resultado;
+        return null;
       }
 
       Video video = _mapper.Map<Video>(videoDto);
 
       await _dao.AddAsync(video);
 
-      return Result.Ok();
+      return _mapper.Map<ReadVideoDTO>(video);
     }
 
 
