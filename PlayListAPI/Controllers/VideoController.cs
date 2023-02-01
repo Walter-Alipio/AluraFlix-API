@@ -19,10 +19,10 @@ public class VideosController : ControllerBase
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> addVideo([FromBody] CreateVideoDto videoDto)
   {
-    Result result = await _videoService.AddVideoAsync(videoDto);
-    if (result.IsFailed) return BadRequest(result.Errors.First());
+    ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto);
+    if (dto == null) return BadRequest(dto);
 
-    return Created("Video adicionado com sucesso!", result.Successes.FirstOrDefault());
+    return CreatedAtAction(nameof(showVideoById), new { Id = dto.Id }, dto);
   }
 
 
