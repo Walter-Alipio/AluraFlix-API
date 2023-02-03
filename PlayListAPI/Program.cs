@@ -14,7 +14,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(c => c.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
-  opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+  opt.UseSqlServer("Name=DbConnection"));
 
 //injetando as services
 builder.Services.AddScoped<IVideosService, VideosService>();
@@ -34,8 +34,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-  app.UseSwagger();
-  app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
