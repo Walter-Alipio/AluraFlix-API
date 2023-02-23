@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PlayListAPI.Data;
-using PlayListAPI.Data.DAOs;
-using PlayListAPI.Data.DAOs.Interfaces;
+using PlayListAPI.Repository;
+using PlayListAPI.Repository.Handle;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
 
@@ -18,9 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 //injetando as services
 builder.Services.AddScoped<IVideosService, VideosService>();
-builder.Services.AddScoped<ICategoriaDAO, CategoriaDAO>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
-builder.Services.AddScoped<IVideoDAO, VideoDAO>();
+builder.Services.AddScoped<IVideoRepository, VideoRepository>();
 
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

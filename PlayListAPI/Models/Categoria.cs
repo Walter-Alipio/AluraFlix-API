@@ -1,21 +1,13 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace PlayListAPI.Models
 {
-  public class Categoria
-  {
-    [Key]
-    [Required]
-    public int Id { get; set; }
-
-    [Required(ErrorMessage = "Campo Titulo é obrigaório.")]
-    [StringLength(50, ErrorMessage = "Tamanho máximo do campo 50 caracteres.")]
-    public string? Title { get; set; }
-    [Required(ErrorMessage = "Campo cor é obrigatório.")]
-    [StringLength(10, ErrorMessage = "Tamanho excedido.")]
-    public string? Cor { get; set; }
-    [JsonIgnore]
-    public virtual List<Video>? Videos { get; set; }
-  }
+	public class Categoria : IEntity
+	{
+		public int Id { get; set; }
+		public string Title { get; set; } = string.Empty;
+		public string Cor { get; set; } = string.Empty;
+		[JsonIgnore]
+		public virtual List<Video>? Videos { get; set; }
+	}
 }
