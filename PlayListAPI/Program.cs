@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PlayListAPI.Data;
 using PlayListAPI.Repository;
@@ -16,11 +17,16 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<AppDbContext>(opt =>
   opt.UseSqlServer("Name=DbConnection"));
 
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
 //injetando as services
 builder.Services.AddScoped<IVideosService, VideosService>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+builder.Services.AddScoped<RegisterService, RegisterService>();
 
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
