@@ -18,7 +18,7 @@ public class RegisterService
     public bool RegisterUser(RegisterUserDto registerUser)
     {
         IdentityUser identityUser = _mapper.Map<IdentityUser>(registerUser);
-        var resultIdentity = _userManager.CreateAsync(identityUser);
+        var resultIdentity = _userManager.CreateAsync(identityUser, registerUser.Password);
 
         if (resultIdentity.Result.Succeeded) return true;
 
