@@ -16,8 +16,8 @@ public class LoginController : ControllerBase
         _loginService = loginService;
     }
 
-    [HttpPost]
-    public IActionResult Login(LoginRequest loginRequest)
+    [HttpPost("/UserLogin")]
+    public IActionResult UserLogin(LoginRequest loginRequest)
     {
         Result result = _loginService.UserLogin(loginRequest);
 
@@ -26,8 +26,8 @@ public class LoginController : ControllerBase
         return Ok(result.Successes.First());
     }
 
-    [HttpPost]
-    public IActionResult Logout()
+    [HttpPost("/UserLogout")]
+    public IActionResult UserLogout()
     {
         Result result = _loginService.Logout();
         if (result.IsFailed) return Unauthorized(result.Errors.First());
