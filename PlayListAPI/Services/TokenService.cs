@@ -9,17 +9,17 @@ namespace PlayListAPI.Services;
 
 public class TokenService
 {
-    public TokenDto CreateToken(IdentityUser user)
+    public TokenDto CreateToken(IdentityUser user, string? role)
     {
         Claim[] userClaims = new Claim[]
         {
             new Claim("username", user.UserName),
-            new Claim("id", user.Id.ToString())
+            new Claim("id", user.Id.ToString()),
+            new Claim(ClaimTypes.Role, role)
         };
 
-        var hash = new Guid();
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(hash.ToString())
+            Encoding.UTF8.GetBytes(Settings.Secret())
         );
 
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
