@@ -25,8 +25,8 @@ public class VideosController : ControllerBase
         return CreatedAtAction(nameof(showVideoById), new { Id = dto.Id }, dto);
     }
 
-
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> showVideoById(int id)
     {
         ReadVideoDTO? readDto = await _videoService.GetVideoByIdAsync(id);
@@ -35,9 +35,8 @@ public class VideosController : ControllerBase
         return Ok(readDto);
     }
 
-
     [HttpGet]
-    [Authorize(Roles = "user")]
+    [AllowAnonymous]
     public async Task<IActionResult> showAllVideos([FromQuery] string? search)
     {
         List<ReadVideoDTO>? readDtoList = await _videoService.GetVideosAsync(search);
@@ -47,6 +46,7 @@ public class VideosController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "user")]
     public async Task<IActionResult> updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
     {
         Result result = _videoService.CheckUrl(videoDTO);
@@ -59,8 +59,8 @@ public class VideosController : ControllerBase
         return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
     }
 
-
     [HttpDelete("{id}")]
+    [Authorize(Roles = "user")]
     public async Task<IActionResult> deleteVideo(int id)
     {
         Result result = await _videoService.DeleteVideoAsync(id);
