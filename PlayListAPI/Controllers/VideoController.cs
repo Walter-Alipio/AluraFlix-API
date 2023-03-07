@@ -3,70 +3,85 @@ using PlayListAPI.Services.Interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 [ApiController]
 [Route("[controller]")]
 public class VideosController : ControllerBase
 {
-    private IVideosService _videoService;
+  private IVideosService _videoService;
+  private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public VideosController(IVideosService videoService)
-    {
-        _videoService = videoService;
-    }
+  public VideosController(IVideosService videoService, IHttpContextAccessor httpcontextAccessor)
+  {
+    _videoService = videoService;
+    _httpContextAccessor = httpcontextAccessor;
+  }
 
-    [HttpPost]
-    [Authorize(Roles = "user")]
-    public async Task<IActionResult> addVideo([FromBody] CreateVideoDto videoDto)
-    {
-        ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto);
-        if (dto == null) return BadRequest(dto);
+  [HttpPost]
+  [Authorize(Roles = "user")]
+  public async Task<IActionResult> addVideo([FromBody] CreateVideoDto videoDto)
+  {
+    var authHeader = Request.Headers["Authorization"];
+    var token = authHeader.First().Substring("Bearer ".Length).Trim();
 
-        return CreatedAtAction(nameof(showVideoById), new { Id = dto.Id }, dto);
-    }
+    // Extrair as reivindicações do token JWT
+    var handler = new JwtSecurityTokenHandler();
+    var claims = handler.ReadJwtToken(token).Claims;
 
-    [HttpGet("{id}")]
-    [AllowAnonymous]
-    public async Task<IActionResult> showVideoById(int id)
-    {
-        ReadVideoDTO? readDto = await _videoService.GetVideoByIdAsync(id);
-        if (readDto == null) return NotFound();
+    var userIdClaim = claims.FirstOrDefault(c => c.Type == "id");
 
-        return Ok(readDto);
-    }
+    var userId = userIdClaim.Value;
 
-    [HttpGet]
-    [AllowAnonymous]
-    public async Task<IActionResult> showAllVideos([FromQuery] string? search)
-    {
-        List<ReadVideoDTO>? readDtoList = await _videoService.GetVideosAsync(search);
-        if (readDtoList == null || !readDtoList.Any()) return NotFound();
+    ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto);
+    if (dto == null) return BadRequest(dto);
 
-        return Ok(readDtoList);
-    }
+    return CreatedAtAction(nameof(showVideoById), new { Id = dto.Id }, dto);
+  }
 
-    [HttpPut("{id}")]
-    [Authorize(Roles = "user")]
-    public async Task<IActionResult> updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
-    {
-        Result result = _videoService.CheckUrl(videoDTO);
+  [HttpGet("{id}")]
+  [AllowAnonymous]
+  public async Task<IActionResult> showVideoById(int id)
+  {
+    ReadVideoDTO? readDto = await _videoService.GetVideoByIdAsync(id);
+    if (readDto == null) return NotFound();
 
-        if (result.IsFailed) return BadRequest(result.Errors.First());
+    return Ok(readDto);
+  }
 
-        ReadVideoDTO? selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
-        if (selectedVideo == null) return NotFound();
+  [HttpGet]
+  [AllowAnonymous]
+  public async Task<IActionResult> showAllVideos([FromQuery] string? search)
+  {
+    List<ReadVideoDTO>? readDtoList = await _videoService.GetVideosAsync(search);
+    if (readDtoList == null || !readDtoList.Any()) return NotFound();
 
-        return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
-    }
+    return Ok(readDtoList);
+  }
 
-    [HttpDelete("{id}")]
-    [Authorize(Roles = "user")]
-    public async Task<IActionResult> deleteVideo(int id)
-    {
-        Result result = await _videoService.DeleteVideoAsync(id);
-        if (result.IsFailed) return NotFound();
+  [HttpPut("{id}")]
+  [Authorize(Roles = "user")]
+  public async Task<IActionResult> updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
+  {
+    Result result = _videoService.CheckUrl(videoDTO);
 
-        return NoContent();
-    }
+    if (result.IsFailed) return BadRequest(result.Errors.First());
+
+    ReadVideoDTO? selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
+    if (selectedVideo == null) return NotFound();
+
+    return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
+  }
+
+  [HttpDelete("{id}")]
+  [Authorize(Roles = "user")]
+  public async Task<IActionResult> deleteVideo(int id)
+  {
+    Result result = await _videoService.DeleteVideoAsync(id);
+    if (result.IsFailed) return NotFound();
+
+    return NoContent();
+  }
 
 }

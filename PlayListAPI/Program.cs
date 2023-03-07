@@ -28,36 +28,38 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 
 builder.Services.Configure<IdentityOptions>(opt =>
 {
-    opt.Password.RequiredLength = 8;
+  opt.Password.RequiredLength = 8;
+  opt.User.RequireUniqueEmail = true;
 });
 
 builder.Services.AddAuthentication(auth =>
 {
-    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+  auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+  auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(token =>
 {
-    token.RequireHttpsMetadata = false;
-    token.SaveToken = true;
-    token.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-          Encoding.UTF8.GetBytes(Settings.Secret())
-        ),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
-    };
+  token.RequireHttpsMetadata = false;
+  token.SaveToken = true;
+  token.TokenValidationParameters = new TokenValidationParameters
+  {
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(Settings.Secret())
+      ),
+    ValidateIssuer = false,
+    ValidateAudience = false,
+    ClockSkew = TimeSpan.Zero
+  };
 });
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("user", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-    });
+  options.AddPolicy("user", policy =>
+  {
+    policy.RequireAuthenticatedUser();
+  });
+
 });
 
 //injetando as services
@@ -77,16 +79,16 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(swagger =>
     {
-        swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-        {
-            Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            In = ParameterLocation.Header,
-            Description = "Header de autorização de esquema JWT usando Bearer.",
-        });
-        swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+      swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+      {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Header de autorização de esquema JWT usando Bearer.",
+      });
+      swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                             {
                                 {
                                     new OpenApiSecurityScheme
@@ -109,8 +111,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
