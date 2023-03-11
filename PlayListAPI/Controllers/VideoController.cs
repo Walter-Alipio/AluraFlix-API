@@ -23,18 +23,18 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> addVideo([FromBody] CreateVideoDto videoDto)
   {
-    var authHeader = Request.Headers["Authorization"];
-    var token = authHeader.First().Substring("Bearer ".Length).Trim();
+    var userId = string.Empty;
 
-    // Extrair as reivindicações do token JWT
-    var handler = new JwtSecurityTokenHandler();
-    var claims = handler.ReadJwtToken(token).Claims;
+    try
+    {
+      userId = ExtractId();
+    }
+    catch (System.Exception e)
+    {
+      return StatusCode(500, $" {e.Message}");
+    }
 
-    var userIdClaim = claims.FirstOrDefault(c => c.Type == "id");
-
-    var userId = userIdClaim.Value;
-
-    ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto);
+    ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto, userId);
     if (dto == null) return BadRequest(dto);
 
     return CreatedAtAction(nameof(showVideoById), new { Id = dto.Id }, dto);
@@ -64,12 +64,19 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> updateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    Result result = _videoService.CheckUrl(videoDTO);
-
-    if (result.IsFailed) return BadRequest(result.Errors.First());
-
-    ReadVideoDTO? selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
-    if (selectedVideo == null) return NotFound();
+    ReadVideoDTO selectedVideo;
+    try
+    {
+      selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
+    }
+    catch (ArgumentException e)
+    {
+      return BadRequest(e.Message);
+    }
+    catch (NullReferenceException)
+    {
+      return NotFound();
+    }
 
     return CreatedAtAction(nameof(showVideoById), new { Id = selectedVideo.Id }, selectedVideo);
   }
@@ -82,6 +89,27 @@ public class VideosController : ControllerBase
     if (result.IsFailed) return NotFound();
 
     return NoContent();
+  }
+  private string ExtractId()
+  {
+    try
+    {
+      var authHeader = Request.Headers["Authorization"];
+
+      var token = authHeader.First().Substring("Bearer ".Length).Trim();
+
+      // Extrair as reivindicações do token JWT
+      var handler = new JwtSecurityTokenHandler();
+      var claims = handler.ReadJwtToken(token).Claims;
+
+      var userIdClaim = claims.FirstOrDefault(c => c.Type == "id");
+
+      return userIdClaim.Value;
+    }
+    catch (System.Exception)
+    {
+      throw;
+    }
   }
 
 }

@@ -15,6 +15,6 @@ namespace PlayListAPI.Data.DTOs.VideosDTOs
     [StringLength(100, ErrorMessage = "Tamanho máximo do campo 100 caracteres")]
     public override string? Url { get; set; }
 
-    public override int? CategoriaId { get; set; } = 0;
+    public override int? CategoriaId { get; set; } = null;
   }
 }
