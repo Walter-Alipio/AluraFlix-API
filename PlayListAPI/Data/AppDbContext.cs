@@ -21,8 +21,6 @@ namespace PlayListAPI.Data
       //adicionado para cria��o da migra��o.
       base.OnModelCreating(builder);
 
-      builder.ApplyConfiguration(new IdentityAdminConfig(_configuration));
-
       builder.Entity<IdentityUserRole<string>>()
       .HasData(
            new IdentityUserRole<string> { RoleId = "99999", UserId = "99999" }

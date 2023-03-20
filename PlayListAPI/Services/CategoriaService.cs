@@ -103,7 +103,7 @@ namespace PlayListAPI.Services
       string pattern = @"^#?([\da-f]{6})$";
       Match match = Regex.Match(color, pattern, RegexOptions.IgnoreCase);
 
-      if (match.Success) return true;
+      if (!match.Success) return true;
 
       return false;
     }

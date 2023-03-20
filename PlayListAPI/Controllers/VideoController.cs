@@ -21,7 +21,7 @@ public class VideosController : ControllerBase
 
   [HttpPost]
   [Authorize(Roles = "user")]
-  public async Task<IActionResult> addVideo([FromBody] CreateVideoDto videoDto)
+  public async Task<IActionResult> AddVideo([FromBody] CreateVideoDto videoDto)
   {
     var userId = string.Empty;
 
@@ -35,7 +35,7 @@ public class VideosController : ControllerBase
     }
 
     ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto, userId);
-    if (dto == null) return BadRequest(dto);
+    if (dto == null) return BadRequest();
 
     return CreatedAtAction(nameof(showVideoById), new { Id = dto.Id }, dto);
   }
