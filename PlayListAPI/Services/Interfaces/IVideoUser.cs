@@ -1,7 +1,7 @@
 using PlayListAPI.Data.DTOs.VideosDTOs;
 
 namespace PlayListAPI.Services.Interfaces;
-public interface IVideoUser : IVideosService
+public interface IVideoServiceUserData : IVideosService
 {
-  Task<List<ReadVideoDTO>> ShowUserVideosAsync(string userId);
+  Task<List<ReadVideoDTO>> GetUserVideosAsync(string userId);
 }

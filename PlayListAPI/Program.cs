@@ -63,7 +63,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 //injetando as services
-builder.Services.AddScoped<IVideosService, VideosService>();
+builder.Services.AddScoped<IVideoServiceUserData, VideosService>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
