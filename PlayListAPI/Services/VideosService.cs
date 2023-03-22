@@ -7,7 +7,7 @@ using PlayListAPI.Repository;
 
 namespace PlayListAPI.Services
 {
-  public class VideosService : IVideosService
+  public class VideosService : IVideoServiceUserData
   {
     private IMapper _mapper;
     private IVideoRepository _repository;
@@ -113,6 +113,57 @@ namespace PlayListAPI.Services
       await _repository.Delete(video);
 
       return Result.Ok();
+    }
+
+    public async Task<List<ReadVideoDTO>> GetUserVideosAsync(string userId)
+    {
+      List<Video> videos = await _repository.GetAllUserVideos(userId);
+      if (!videos.Any())
+      {
+        return new List<ReadVideoDTO>();
+      }
+
+      return _mapper.Map<List<ReadVideoDTO>>(videos);
+    }
+
+    public async Task<VideosPaginated?> GetPaginatedVideos(int page, int pageSize)
+    {
+      List<Video>? videos = await _repository.GetAllPaginatedAsync(page, pageSize, v => v.Categoria);
+
+      videos = videos is null ? new List<Video>() : videos;
+
+      List<ReadVideoDTO> videosPage = _mapper.Map<List<ReadVideoDTO>>(videos);
+
+      var total = await _repository.GetTotalItens();
+      VideosPaginated? response = this.CreatePage(total, page, pageSize, videosPage);
+      return response;
+    }
+
+    private VideosPaginated CreatePage(int total, int page, int pageSize, List<ReadVideoDTO> videosPage)
+    {
+      if (!videosPage.Any()) return null;
+
+      int? previews = page - 1;
+
+      var previewsLink = previews <= 0 ? null : $"https://localhost:7081/Videos/bypage?page={previews}&pageSize={pageSize}";
+
+      var nextLink = $"https://localhost:7081/Videos/bypage?page={page + 1}&pageSize={pageSize}";
+
+      var calcTotal = total - page * pageSize;
+
+      if (calcTotal <= 0)
+      {
+        nextLink = null;
+        calcTotal = 0;
+      }
+
+      return new VideosPaginated()
+      {
+        Total = calcTotal + " itens restantes",
+        Next = nextLink,
+        Previews = previewsLink,
+        Videos = videosPage
+      };
     }
 
     private Result CheckUrlPattern(VideoDto videoDto)
