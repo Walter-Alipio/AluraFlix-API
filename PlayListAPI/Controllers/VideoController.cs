@@ -97,10 +97,12 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> UpdateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    ReadVideoDTO selectedVideo;
+    ReadVideoDTO? selectedVideo;
     try
     {
       selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
+
+      if (selectedVideo is null) return NotFound();
     }
     catch (ArgumentException e)
     {

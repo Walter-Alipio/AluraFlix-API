@@ -6,38 +6,49 @@ namespace PlayListAPI.Services;
 
 public class LoginService
 {
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private TokenService _token;
+  private readonly SignInManager<IdentityUser> _signInManager;
+  private TokenService _token;
 
-    public LoginService(SignInManager<IdentityUser> signInManager, TokenService token)
+  public LoginService(SignInManager<IdentityUser> signInManager, TokenService token)
+  {
+    _signInManager = signInManager;
+    _token = token;
+  }
+
+  public Result UserLogin(LoginRequest loginRequest)
+  {
+    var identity = _signInManager
+        .PasswordSignInAsync(loginRequest.UserName, loginRequest.Password, false, false);
+
+    if (identity.Result.Succeeded)
     {
-        _signInManager = signInManager;
-        _token = token;
+      var identityUser = _signInManager.UserManager.Users.FirstOrDefault(user => user.NormalizedUserName == loginRequest.UserName.ToUpper());
+
+      var token = _token.CreateToken(identityUser!, _signInManager
+          .UserManager.GetRolesAsync(identityUser).Result.FirstOrDefault());
+
+      return Result.Ok().WithSuccess(token.Value);
     }
 
-    public Result UserLogin(LoginRequest loginRequest)
+    return Result.Fail("Login falhou!");
+  }
+
+  public Result Logout()
+  {
+    try
     {
-        var identity = _signInManager
-            .PasswordSignInAsync(loginRequest.UserName, loginRequest.Password, false, false);
+      var identityResult = _signInManager.SignOutAsync();
 
-        if (identity.Result.Succeeded)
-        {
-            var identityUser = _signInManager.UserManager.Users.FirstOrDefault(user => user.NormalizedUserName == loginRequest.UserName.ToUpper());
-
-            var token = _token.CreateToken(identityUser!, _signInManager
-                .UserManager.GetRolesAsync(identityUser).Result.FirstOrDefault());
-
-            return Result.Ok().WithSuccess(token.Value);
-        }
-
-        return Result.Fail("Login falhou!");
+      if (identityResult.IsCompletedSuccessfully) return Result.Ok();
     }
 
-    public Result Logout()
+    catch (System.Exception)
     {
-        var identityResult = _signInManager.SignOutAsync();
-        if (identityResult.IsCompletedSuccessfully) return Result.Ok();
 
-        return Result.Fail("Logout falhou");
+      throw;
     }
+
+
+    return Result.Fail("Logout falhou");
+  }
 }

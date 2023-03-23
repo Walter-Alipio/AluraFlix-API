@@ -8,19 +8,19 @@ namespace PlayListAPI.Controllers;
 [ApiController]
 public class RegisterController : ControllerBase
 {
-    private RegisterService _registerService;
+  private RegisterService _registerService;
 
-    public RegisterController(RegisterService registerService)
-    {
-        _registerService = registerService;
-    }
+  public RegisterController(RegisterService registerService)
+  {
+    _registerService = registerService;
+  }
 
-    [HttpPost]
-    public async Task<IActionResult> RegisterUser(RegisterUserDto registerUser)
-    {
-        bool result = await _registerService.RegisterUser(registerUser);
-        if (!result) return StatusCode(500);
+  [HttpPost("/User/CriarLogin")]
+  public async Task<IActionResult> RegisterUser(RegisterUserDto registerUser)
+  {
+    bool result = await _registerService.RegisterUser(registerUser);
+    if (!result) return StatusCode(500);
 
-        return Ok();
-    }
+    return Ok();
+  }
 }
