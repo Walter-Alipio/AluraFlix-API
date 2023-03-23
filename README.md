@@ -20,7 +20,7 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
    <li> API com rotas implementadas segundo o padrão REST;</li>
    <li> Validações feitas conforme as regras de negócio;</li>
    <li> Implementação de base de dados para persistência das informações;</li>
-   <li> Serviço de autenticação para acesso às rotas GET, POST, PUT e DELETE.</li>
+   <li> Serviço de autenticação para acesso às rotas POST, PUT e DELETE.</li>
 
 </ul>
 
@@ -43,152 +43,75 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 - [x] Criar testes de unidade para os modelos e controller.
 - [ ] Crie testes de integração.
 
+## :construction: Semana 3 e 4
+
+- [x] Sistema de autenticação.
+- [x] Alteração no banco de dados para tabela de usuário.
+- [ ] Deploy.
+
 ## ✔️ Tecnologias utilizadas
 
-- [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) , [EntityFrameworkCore 6.0.10](https://learn.microsoft.com/en-us/ef/) , [AutoMapper 12.0.0](https://automapper.org/) , [FluentResults 3.14.0](https://github.com/altmann/FluentResults) , [MySQL 8](https://dev.mysql.com/doc/relnotes/mysql/8.0/en/) , [Pomelo.EntityFrameworkCore](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql) , [Swagger](https://swagger.io/)
+- [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) , [EntityFrameworkCore 6.0.10](https://learn.microsoft.com/en-us/ef/) , [AutoMapper 12.0.0](https://automapper.org/) , [IdentityFramework 6.0](https://learn.microsoft.com/pt-br/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=visual-studio) , [JWT Bearer](https://jwt.io/introduction) , [FluentResults 3.14.0](https://github.com/altmann/FluentResults) , [DotEnv](https://github.com/bolorundurowb/dotenv.net) , [SQL Sever 2022](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads), [Swagger](https://swagger.io/)
 
 <br>
 
 ## 🛠️ Abrir e rodar o projeto
 
-Altere o arquivo appsettings.json incluindo o código:
+Clone o projeto para seu repositório.
+<br>
+Instale as dependências através do comando:
 
-` "ConnectionStrings": { "DbConnection": //string de conexão }`
+`dotnet restore`
+
+Configure sua connection string pelo user-secrets com o comando:
+
+`dotnet user-secrets "DbConnection" "SUA_STRING_AQUI"`
 
 Criar a base de dados:
 
 `dotnet ef database update`
+
+O adminstrador deve ser criado direto no banco de dados e deve ser atribuído o papel amdmin para o mesmo.
+
+Crie um arquivo `.env` na raiz do projeto PlayListAPI seguindo o modelo do arquivo `.env.example`
 <br><br>
 
 # **Rotas do projeto**
 
 # Categorias
 
-### 1.1 Cadastra um nova categoria
-
-| Método | Autorização | Rota        | Descrição               | Body Params | Query Params |
-| ------ | ----------- | ----------- | ----------------------- | ----------- | ------------ |
-| POST   | -           | /categorias | Cadastra nova categoria | JSON        | -            |
-
-#### Body Params exemplo:
-
-```
-{
-  "title": "Educação",
-  "cor": "#ff0000 "
-}
-```
-
-### 1.2 Retorna categoria por id
-
-| Método | Autorização | Rota               | Descrição                             | Body Params | Query Params |
-| ------ | ----------- | ------------------ | ------------------------------------- | ----------- | ------------ |
-| GET    | -           | /categorias/`{id}` | Retorna uma categoria por id numérico | -           | -            |
-
-### 1.3 Retorna lista de categoria
-
-| Método | Autorização | Rota        | Descrição                   | Body Params | Query Params |
-| ------ | ----------- | ----------- | --------------------------- | ----------- | ------------ |
-| GET    | -           | /categorias | Retorna todas as categorias | -           | -            |
-
-### 1.4 Atualiza categoria
-
-| Método | Autorização | Rota               | Descrição                        | Body Params | Query Params |
-| ------ | ----------- | ------------------ | -------------------------------- | ----------- | ------------ |
-| PUT    | -           | /categorias/`{id}` | Permite atualizar uma categoria. | JSON        | -            |
-|        |             |                    | Retorna dados atualizados.       |             |              |
-
-#### Body Params exemplo:
-
-```
-{
-  "title": "Saúde",
-  "cor": "#0fff00 "
-}
-```
-
-#### Resposta exemplo:
-
-```
-{
-   "id": 2,
-   "title": "Saúde",
-   "cor": "#0fff00 "
-}
-```
-
-### 1.5 Exluir categoria
-
-| Método | Autorização | Rota               | Descrição                            | Body Params | Query Params |
-| ------ | ----------- | ------------------ | ------------------------------------ | ----------- | ------------ |
-| DELETE | -           | /categorias/`{id}` | Exclui a categoria indicada pelo id. | -           | -            |
+| Método | Autorização | Rota                       | Descrição                                        | Body Params | Query Params |
+| ------ | ----------- | -------------------------- | ------------------------------------------------ | ----------- | ------------ |
+| POST   | Admin       | /categorias                | Cadastra nova categoria                          | JSON        | -            |
+| GET    | -           | /categorias/`{id}`         | Retorna uma categoria por id numérico            | -           | -            |
+| GET    | -           | /categorias/`{id}/`/videos | Retorna lista de videos pertencentes a categoria | -           | -            |
+| GET    | -           | /categorias                | Retorna todas as categorias                      | -           | -            |
+| PUT    | Admin       | /categorias/`{id}`         | Permite atualizar uma categoria.                 | JSON        | -            |
+|        |             |                            | Retorna dados atualizados.                       |             |              |
+| DELETE | Admin       | /categorias/`{id}`         | Exclui a categoria indicada pelo id.             | -           | -            |
 
 <br><br>
 
 # Videos
 
-### 2.1 Cadastra video
+| Método | Autorização | Rota           | Descrição                                    | Body Params | Query Params              |
+| ------ | ----------- | -------------- | -------------------------------------------- | ----------- | ------------------------- |
+| POST   | User        | /videos        | Cadastra novo video                          | JSON        | -                         |
+| GET    | -           | /videos/`{id}` | Retorna um video por id numérico             | -           | -                         |
+| GET    | -           | /videos        | Retorna todos os videos                      | -           | -                         |
+| GET    | -           | /videos        | Retorna videos com título informado          | -           | ?search=`Titulo do video` |
+| GET    | -           | /meus_videos   | Retorna lista de videos do usuário logado    | -           |                           |
+| GET    | -           | /videos/bypage | Retorna lista de videos paginado             | -           | ?page=`1`&pageSize=`5`    |
+| PUT    | User        | /videos/`{id}` | Permite atualizar um ou mais dados do video. | JSON        | -                         |
+|        |             |                | Retorna dados atualizados.                   |             |                           |
+| DELETE | User        | /videos/`{id}` | Exclui um video indicado pelo id.            | -           | -                         |
 
-| Método | Autorização | Rota    | Descrição           | Body Params | Query Params |
-| ------ | ----------- | ------- | ------------------- | ----------- | ------------ |
-| POST   | -           | /videos | Cadastra novo video | JSON        | -            |
+<br><br>
 
-#### Body Params exemplo:
+# Usuário
 
-```
-{
-  "title": "Como desenvolver boas práticas de programação?",
-  "description": "Paulo Silveira e Fábio Akita discutem sobre boas práticas de programação",
-  "url": "https://www.youtube.com/watch?v=GUanHEGlje4",
-  "categoriaId": 4
-}
-```
-
-### 2.2 Retorna video por id
-
-| Método | Autorização | Rota           | Descrição                        | Body Params | Query Params |
-| ------ | ----------- | -------------- | -------------------------------- | ----------- | ------------ |
-| GET    | -           | /videos/`{id}` | Retorna um video por id numérico | -           | -            |
-
-### 2.3 Retorna lista de videos
-
-| Método | Autorização | Rota    | Descrição                           | Body Params | Query Params              |
-| ------ | ----------- | ------- | ----------------------------------- | ----------- | ------------------------- |
-| GET    | -           | /videos | Retorna todos os videos             | -           | -                         |
-| GET    | -           | /videos | Retorna videos com título informado | -           | ?search=`Titulo do video` |
-
-### 2.4 Atualiza video
-
-| Método | Autorização | Rota           | Descrição                                    | Body Params | Query Params |
-| ------ | ----------- | -------------- | -------------------------------------------- | ----------- | ------------ |
-| PUT    | -           | /videos/`{id}` | Permite atualizar um ou mais dados do video. | JSON        | -            |
-|        |             |                | Retorna dados atualizados.                   |             |              |
-
-#### Body Params exemplo:
-
-```
-{
-  "title": "[Video Alura] Como desenvolver boas práticas de programação?"
-}
-```
-
-#### Resposta exemplo:
-
-```
-  "id": 5,
-  "title": "[Video Alura] Como desenvolver boas práticas de programação?",
-  "description": "Paulo Silveira e Fábio Akita discutem sobre boas práticas de programação",
-  "url": "https://www.youtube.com/watch?v=GUanHEGlje4",
-  "categoria": {
-    "id": 4,
-    "title": "Educação",
-    "cor": "#ff0000 "
-  }
-}
-```
-
-### 2.5 Exluir video
-
-| Método | Autorização | Rota           | Descrição                         | Body Params | Query Params |
-| ------ | ----------- | -------------- | --------------------------------- | ----------- | ------------ |
-| DELETE | -           | /videos/`{id}` | Exclui um video indicado pelo id. | -           | -            |
+| Método | Autorização | Rota             | Descrição                                  | Body Params | Query Params |
+| ------ | ----------- | ---------------- | ------------------------------------------ | ----------- | ------------ |
+| POST   | -           | /User/CriarLogin | Cadastra novo Usuario                      | JSON        | -            |
+| POST   | -           | /User/Login      | Verifica usuário e retorna token de acesso | JSON        | -            |
+| POST   | -           | /User/Logout     | Desloga usuário                            | JSON        | -            |
