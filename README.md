@@ -51,7 +51,15 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 
 ## ✔️ Tecnologias utilizadas
 
-- [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) , [EntityFrameworkCore 6.0.10](https://learn.microsoft.com/en-us/ef/) , [AutoMapper 12.0.0](https://automapper.org/) , [IdentityFramework 6.0](https://learn.microsoft.com/pt-br/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=visual-studio) , [JWT Bearer](https://jwt.io/introduction) , [FluentResults 3.14.0](https://github.com/altmann/FluentResults) , [DotEnv](https://github.com/bolorundurowb/dotenv.net) , [SQL Sever 2022](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads), [Swagger](https://swagger.io/)
+- [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- [EntityFrameworkCore 6.0](https://learn.microsoft.com/en-us/ef/)
+- [AutoMapper](https://automapper.org/)
+- [IdentityFramework 6.0](https://learn.microsoft.com/pt-br/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=visual-studio)
+- [JWT Bearer](https://jwt.io/introduction)
+- [FluentResults](https://github.com/altmann/FluentResults)
+- [DotEnv](https://github.com/bolorundurowb/dotenv.net)
+- [SQL Sever 2022](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads)
+- [Swagger](https://swagger.io/)
 
 <br>
 
