@@ -4,6 +4,7 @@ using PlayListAPI.Services.Interfaces;
 using AutoMapper;
 using FluentResults;
 using PlayListAPI.Repository;
+using PlayListAPI.Utils;
 
 namespace PlayListAPI.Services
 {
@@ -11,16 +12,12 @@ namespace PlayListAPI.Services
   {
     private readonly IMapper _mapper;
     private readonly IVideoRepository _repository;
-    private readonly IConfiguration _configuration;
 
-    public VideosService(IMapper mapper, IVideoRepository repository, IConfiguration configuration)
+    public VideosService(IMapper mapper, IVideoRepository repository)
     {
       _mapper = mapper;
       _repository = repository;
-      _configuration = configuration;
     }
-
-
 
     public async Task<ReadVideoDTO?> AddVideoAsync(CreateVideoDto videoDto, string userId)
     {
@@ -129,7 +126,7 @@ namespace PlayListAPI.Services
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
-    public async Task<VideosPaginated?> GetPaginatedVideos(int page, int pageSize)
+    public async Task<VideosPaginatedViewModel?> GetPaginatedVideos(int page, int pageSize)
     {
       List<Video>? videos = await _repository.GetAllPaginatedAsync(page, pageSize, v => v.Categoria);
 
@@ -138,37 +135,9 @@ namespace PlayListAPI.Services
       List<ReadVideoDTO> videosPage = _mapper.Map<List<ReadVideoDTO>>(videos);
 
       var total = await _repository.GetTotalItens();
-      VideosPaginated? response = this.CreatePage(total, page, pageSize, videosPage);
-      return response;
-    }
 
-    private VideosPaginated CreatePage(int total, int page, int pageSize, List<ReadVideoDTO> videosPage)
-    {
-      if (!videosPage.Any()) return null;
-
-      var url = _configuration.GetValue<string>("url");
-
-      int? previews = page - 1;
-
-      var previewsLink = previews <= 0 ? null : $"{url}/Videos/bypage?page={previews}&pageSize={pageSize}";
-
-      var nextLink = $"{url}/Videos/bypage?page={page + 1}&pageSize={pageSize}";
-
-      var calcTotal = total - page * pageSize;
-
-      if (calcTotal <= 0)
-      {
-        nextLink = null;
-        calcTotal = 0;
-      }
-
-      return new VideosPaginated()
-      {
-        Total = calcTotal + " itens restantes",
-        Next = nextLink,
-        Previews = previewsLink,
-        Videos = videosPage
-      };
+      var videosPaginated = new VideosPaginated(total, page, pageSize, videosPage);
+      return videosPaginated.CreatePage();
     }
 
     private Result CheckUrlPattern(VideoDto videoDto)
