@@ -9,12 +9,15 @@ namespace PlayListAPI.Services
 {
   public class VideosService : IVideoServiceUserData
   {
-    private IMapper _mapper;
-    private IVideoRepository _repository;
-    public VideosService(IMapper mapper, IVideoRepository repository)
+    private readonly IMapper _mapper;
+    private readonly IVideoRepository _repository;
+    private readonly IConfiguration _configuration;
+
+    public VideosService(IMapper mapper, IVideoRepository repository, IConfiguration configuration)
     {
       _mapper = mapper;
       _repository = repository;
+      _configuration = configuration;
     }
 
 
@@ -143,11 +146,13 @@ namespace PlayListAPI.Services
     {
       if (!videosPage.Any()) return null;
 
+      var url = _configuration.GetValue<string>("url");
+
       int? previews = page - 1;
 
-      var previewsLink = previews <= 0 ? null : $"https://localhost:7081/Videos/bypage?page={previews}&pageSize={pageSize}";
+      var previewsLink = previews <= 0 ? null : $"{url}/Videos/bypage?page={previews}&pageSize={pageSize}";
 
-      var nextLink = $"https://localhost:7081/Videos/bypage?page={page + 1}&pageSize={pageSize}";
+      var nextLink = $"{url}/Videos/bypage?page={page + 1}&pageSize={pageSize}";
 
       var calcTotal = total - page * pageSize;
 

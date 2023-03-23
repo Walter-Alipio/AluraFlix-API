@@ -5,7 +5,7 @@
 ./PlayListAPI/appsettings.json
 
 ./PlayListAPI/Settings.cs
-
+.env
 # User-specific files
 *.rsuser
 *.suo
