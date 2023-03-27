@@ -5,99 +5,96 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using System.Text.Encodings.Web;
+using System.Security.Claims;
+using PlayListAPI.Utils;
 
 namespace PlayListAPI.tests;
 
 public class VideosControllerTest
 {
   private Mock<IVideoServiceUserData> _moqService = new Mock<IVideoServiceUserData>();
-  private IHttpContextAccessor _moqContextAccessor;
+  // private IHttpContextAccessor _moqContextAccessor;
+  private Mock<ITokenExtract> _tokenServiceMock = new Mock<ITokenExtract>();
   private VideosController _controller;
-  private readonly string _userIdType = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlVzZXIiLCJpZCI6IjdlY2IwNmQxLTE3NTUtNGYwMC04NTBjLTFkMTZjOGIyN2ViZiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJleHAiOjE2Nzg1NDE4NjN9.RGNYlVoXHCty16ye2vs9smI_E1NEDx6WKRg8O59FV0U";
-
   public VideosControllerTest()
   {
-    _controller = new VideosController(_moqService.Object, _moqContextAccessor);
+    _controller = new VideosController(_moqService.Object, _tokenServiceMock.Object);
+    _controller.ControllerContext = new ControllerContext
+    {
+      HttpContext = new DefaultHttpContext
+      {
+        Request =
+        {
+            Headers =
+            {
+                ["Authorization"] = "Bearer [valid_token_here]"
+            }
+        },
+        User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "test") }, "Test"))
+      }
+    };
   }
 
   #region  POST need fix
-  // [Fact]
-  // public async Task TestAddVideoReturnBadRequest()
-  // {
-  //   // Given
-  //   CreateVideoDto createVideoDto = new()
-  //   {
-  //     Title = "Os Gunnes",
-  //     Description = "Uma aventura sem igual",
-  //     Url = "www.youtube.com/wer234"
-  //   };
+  [Fact]
+  public async Task AddVideo_ReturnsBadRequest_WhenVideoServiceFails()
+  {
+    // Arrange
+    var videoDto = new CreateVideoDto();
+    var headers = new HeaderDictionary();
+    headers.Add("Authorization", "Bearer valid_token_here");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns("user123");
+    var expectedBadRequestResult = new BadRequestResult();
 
-  //   ReadVideoDTO result = new ReadVideoDTO()
-  //   {
-  //     Id = 1,
-  //     Title = "Os Gunnes",
-  //     Description = "Uma aventura sem igual",
-  //     Url = "www.youtube.com/wer234"
-  //   };
+    // Simulate the video service failing to add a video
+    _moqService.Setup(s => s.AddVideoAsync(It.IsAny<CreateVideoDto>(), It.IsAny<string>()))
+                     .ReturnsAsync((ReadVideoDTO?)null);
 
-  //   DefaultHttpContext httpContext = new DefaultHttpContext();
-  //   httpContext.Request.Headers["Authorization"] = _userIdType;
-  //   var service = new Mock<IVideoServiceUserData>();
-  //   IHttpContextAccessor accessor = new HttpContextAccessor();
+    // Act
+    var result = await _controller.AddVideo(videoDto);
 
-  //   var controller = new VideosController(service.Object, accessor)
-  //   {
-  //     ControllerContext = new ControllerContext()
-  //     {
-  //       HttpContext = httpContext
-  //     }
-  //   };
+    // Assert
+    Assert.IsType<BadRequestResult>(result);
+    Assert.Equal(expectedBadRequestResult.StatusCode, (result as BadRequestResult).StatusCode);
+  }
 
-  //   service.Setup(x => x.AddVideoAsync(createVideoDto, _userIdType)).Returns(Task.FromResult<ReadVideoDTO?>(result));
-  //   // When
-  //   var response = await controller.AddVideo(createVideoDto);
+  [Fact]
+  public async Task AddVideo_ReturnsCreated_WhenVideoIsAddedSuccessfully()
+  {
+    // Arrange
+    var videoDto = new CreateVideoDto();
+    var tokenServiceMock = new Mock<ITokenExtract>();
+    var headers = new HeaderDictionary();
+    headers.Add("Authorization", "Bearer valid_token_here");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns("user123");
+    var expectedVideo = new ReadVideoDTO { Id = 1, Title = "Test Video", Description = "A video for testing purposes", Url = "https://example.com/video" };
 
-  //   // Then
-  //   Assert.IsType<BadRequestResult>(response);
-  // }
+    // Simulate adding the video successfully
+    _moqService.Setup(s => s.AddVideoAsync(It.IsAny<CreateVideoDto>(), It.IsAny<string>()))
+                     .ReturnsAsync(expectedVideo);
 
-  // [Fact]
-  // public async Task TestAddReturnCreatedAsync()
-  // {
-  //   // Given
-  //   CreateVideoDto createVideoDto = new()
-  //   {
-  //     Title = "Os Gunnes",
-  //     Description = "Uma aventura sem igual",
-  //     Url = "www.youtube.com/wer234"
-  //   };
-  //   ReadVideoDTO result = new ReadVideoDTO()
-  //   {
-  //     Id = 1,
-  //     Title = "Os Gunnes",
-  //     Description = "Uma aventura sem igual",
-  //     Url = "www.youtube.com/wer234"
-  //   };
-  //   DefaultHttpContext httpContext = new DefaultHttpContext();
-  //   httpContext.Request.Headers["Authorization"] = _userIdType;
-  //   var service = new Mock<IVideoServiceUserData>();
+    // Act
+    var result = await _controller.AddVideo(videoDto);
 
-  //   var controller = new VideosController(service.Object, _moqContextAccessor)
-  //   {
-  //     ControllerContext = new ControllerContext()
-  //     {
-  //       HttpContext = httpContext
-  //     }
-  //   };
+    // Assert
+    Assert.IsType<CreatedAtActionResult>(result);
+    var createdAtResult = Assert.IsType<CreatedAtActionResult>(result);
+    var actualVideo = Assert.IsType<ReadVideoDTO>(createdAtResult.Value);
+    Assert.Equal(expectedVideo.Id, actualVideo.Id);
+    Assert.Equal(expectedVideo.Title, actualVideo.Title);
+    Assert.Equal(expectedVideo.Description, actualVideo.Description);
+    Assert.Equal(expectedVideo.Url, actualVideo.Url);
+    Assert.Equal(StatusCodes.Status201Created, createdAtResult.StatusCode);
+  }
 
-  //   service.Setup(x => x.AddVideoAsync(createVideoDto, "qwerdsf32ve")).Returns(Task.FromResult<ReadVideoDTO?>(result));
 
-  //   // When
-  //   var response = await controller.AddVideo(createVideoDto);
-  //   // Then
-  //   Assert.IsType<CreatedAtActionResult>(response);
-  // }
   #endregion
+
+
 
   //GET
   [Fact]
