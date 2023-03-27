@@ -5,29 +5,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using PlayListAPI.Utils;
 
 [ApiController]
 [Route("[controller]")]
 public class VideosController : ControllerBase
 {
-  private IVideoServiceUserData _videoService;
-  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IVideoServiceUserData _videoService;
+  private readonly ITokenExtract _tokenExtract;
 
-  public VideosController(IVideoServiceUserData videoService, IHttpContextAccessor httpcontextAccessor)
+  public VideosController(IVideoServiceUserData videoService, ITokenExtract tokenExtract)
   {
     _videoService = videoService;
-    _httpContextAccessor = httpcontextAccessor;
+    _tokenExtract = tokenExtract;
   }
 
   [HttpPost]
   [Authorize(Roles = "user")]
   public async Task<IActionResult> AddVideo([FromBody] CreateVideoDto videoDto)
   {
-    var userId = string.Empty;
+    string userId = string.Empty;
 
     try
     {
-      userId = ExtractId();
+      userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
     }
     catch (System.Exception e)
     {
@@ -74,17 +75,16 @@ public class VideosController : ControllerBase
 
   [HttpGet("/Meus_Videos")]
   [Authorize(Roles = "user")]
-  public async Task<IActionResult> ShowUserVideos()
+  public async Task<IActionResult> ShowUserVideos([FromHeader(Name = "Authorization")] string authorizationHeader)
   {
     var userId = string.Empty;
-
     try
     {
-      userId = ExtractId();
+      userId = _tokenExtract.ExtractID(authorizationHeader);
     }
     catch (System.Exception e)
     {
-      return StatusCode(500, $" {e.Message}");
+      return StatusCode(500, $"Falha ao validar usuário {e.Message}");
     }
     List<ReadVideoDTO> readList = await _videoService.GetUserVideosAsync(userId);
     if (readList is null || !readList.Any()) return NotFound();
@@ -124,27 +124,6 @@ public class VideosController : ControllerBase
     if (result.IsFailed) return NotFound();
 
     return NoContent();
-  }
-  private string ExtractId()
-  {
-    try
-    {
-      var authHeader = Request.Headers["Authorization"];
-
-      var token = authHeader.First().Substring("Bearer ".Length).Trim();
-
-      // Extrair as reivindicações do token JWT
-      var handler = new JwtSecurityTokenHandler();
-      var claims = handler.ReadJwtToken(token).Claims;
-
-      var userIdClaim = claims.FirstOrDefault(c => c.Type == "id");
-
-      return userIdClaim.Value;
-    }
-    catch (System.Exception)
-    {
-      throw;
-    }
   }
 
 }

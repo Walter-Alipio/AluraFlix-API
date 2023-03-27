@@ -11,6 +11,7 @@ using PlayListAPI.Repository;
 using PlayListAPI.Repository.Handle;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
+using PlayListAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,7 @@ builder.Services.AddScoped<RegisterService, RegisterService>();
 builder.Services.AddScoped<LoginService, LoginService>();
 builder.Services.AddScoped<TokenService, TokenService>();
 
+builder.Services.AddScoped<ITokenExtract, TokenExtract>();
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
