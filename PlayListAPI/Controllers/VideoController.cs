@@ -3,6 +3,7 @@ using PlayListAPI.Services.Interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using PlayListAPI.Exceptions;
 
 [ApiController]
 [Route("[controller]")]
@@ -27,7 +28,7 @@ public class VideosController : ControllerBase
     {
       userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
     }
-    catch (System.Exception e)
+    catch (ErrorToGetUserIdException e)
     {
       return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
@@ -79,7 +80,7 @@ public class VideosController : ControllerBase
     {
       userId = _tokenExtract.ExtractID(authorizationHeader);
     }
-    catch (System.Exception e)
+    catch (ErrorToGetUserIdException e)
     {
       return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
@@ -94,12 +95,26 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> UpdateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
+    string userId = string.Empty;
+
+    try
+    {
+      userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
+    }
+    catch (ErrorToGetUserIdException e)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+    }
+
+
     ReadVideoDTO? selectedVideo;
     try
     {
-      selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO);
+      selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO, userId);
 
       if (selectedVideo is null) return NotFound();
+
+      return CreatedAtAction(nameof(ShowVideoById), new { Id = selectedVideo.Id }, selectedVideo);
     }
     catch (ArgumentException e)
     {
@@ -109,8 +124,14 @@ public class VideosController : ControllerBase
     {
       return NotFound();
     }
-
-    return CreatedAtAction(nameof(ShowVideoById), new { Id = selectedVideo.Id }, selectedVideo);
+    catch (NotTheVideoOwnerException e)
+    {
+      return Unauthorized(e.Message);
+    }
+    catch (Exception e)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+    }
   }
 
   [HttpDelete("{id}")]

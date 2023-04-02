@@ -5,6 +5,7 @@ using AutoMapper;
 using FluentResults;
 using PlayListAPI.Repository;
 using PlayListAPI.ViewModels;
+using PlayListAPI.Exceptions;
 
 namespace PlayListAPI.Services
 {
@@ -75,8 +76,21 @@ namespace PlayListAPI.Services
     }
 
 
-    public async Task<ReadVideoDTO?> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO)
+    public async Task<ReadVideoDTO?> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO, string userId)
     {
+
+      Video? video = await _repository.GetByIdAsync(id, v => v.Categoria)!;
+      if (video == null)
+      {
+        throw new NullReferenceException();
+      }
+
+      if (!userId.Equals(video.AuthorId))
+      {
+        throw new NotTheVideoOwnerException("Você não é dono deste video.");
+      }
+
+
       if (videoDTO.Url is not null)
       {
         var result = this.CheckUrlPattern(videoDTO);
@@ -87,11 +101,6 @@ namespace PlayListAPI.Services
         }
       }
 
-      Video? video = await _repository.GetByIdAsync(id, v => v.Categoria)!;
-      if (video == null)
-      {
-        throw new NullReferenceException();
-      }
 
       _mapper.Map(videoDTO, video);
 

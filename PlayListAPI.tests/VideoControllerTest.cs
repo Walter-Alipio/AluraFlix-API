@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using Microsoft.Extensions.Primitives;
+using PlayListAPI.Exceptions;
 
 namespace PlayListAPI.tests;
 
@@ -97,7 +97,7 @@ public class VideosControllerTest
     headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
     var expectedErrorMessage = "Erro ao extrair o id";
 
-    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Throws(new Exception(expectedErrorMessage));
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Throws(new ErrorToGetUserIdException(expectedErrorMessage));
 
     // Act
     var result = await _controller.AddVideo(videoDto) as ObjectResult;
@@ -240,7 +240,7 @@ public class VideosControllerTest
     var expectedErrorMessage = "Erro ao extrair o id";
     var authorization = headers["Authorization"];
 
-    _tokenServiceMock.Setup(t => t.ExtractID(authorization)).Throws(new Exception(expectedErrorMessage));
+    _tokenServiceMock.Setup(t => t.ExtractID(authorization)).Throws(new ErrorToGetUserIdException(expectedErrorMessage));
 
     // Act
     var result = await _controller.ShowUserVideos(authorization) as ObjectResult;
@@ -257,52 +257,119 @@ public class VideosControllerTest
 
   #region  PUT
   [Fact]
-  public async void UpdateVideoReturnBadRequest()
+  public async void UpdateVideo_ReturnBadRequest_WhenVideoServiceThrowArgumentException()
   {
     // Given
-    UpdateVideoDTO updateVideoDTO = new();
-    ReadVideoDTO readVideoDTO = new();
-    _moqService.Setup(x => x.UpdateVideoAsync(1, updateVideoDTO)).Throws(new ArgumentException());
+    var headers = new HeaderDictionary();
+    string idUser = "user123";
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
 
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Throws(new ArgumentException());
     // When
-    var response = await _controller.UpdateVideo(1, updateVideoDTO);
+    var responseArgumentE = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
+
     // Then
-    Assert.IsType<BadRequestObjectResult>(response);
+    Assert.IsType<BadRequestObjectResult>(responseArgumentE);
   }
+
   [Fact]
-  public async void TestUpdateVideoReturnNotFound()
+  public async void UpdateVideo_ReturnNotFound_WhenVideoServiceIsNull_OrThrowNullException()
   {
     // Given
-    UpdateVideoDTO updateVideoDTO = new();
-    ReadVideoDTO? readVideoDTO = new();
-    readVideoDTO = null;
-    // _moqService.Setup(s => s.CheckUrl(updateVideoDTO)).Returns(Result.Ok());
-    var error = new NullReferenceException();
-    _moqService.Setup(s => s.UpdateVideoAsync(1, updateVideoDTO)).Throws(new NullReferenceException());
+    var headers = new HeaderDictionary();
+    string idUser = "user123";
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
 
     // When
-    var response = await _controller.UpdateVideo(1, updateVideoDTO);
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Throws(new NullReferenceException());
+    var responseNullReferenceE = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
+
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Returns(Task.FromResult<ReadVideoDTO?>(null));
+    var resultNull = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
+
     // Then
-    Assert.IsType<NotFoundResult>(response);
+    Assert.IsType<NotFoundResult>(resultNull);
+    Assert.IsType<NotFoundResult>(responseNullReferenceE);
   }
+
   [Fact]
-  public async void TestUpdateVideoReturnCreated()
+  public async Task UpdateVideo_ReturnCreated_WhenUpdateVideoSuccessfully()
   {
     // Given
-    UpdateVideoDTO updateVideoDTO = new();
-    ReadVideoDTO readVideoDTO = new();
+    var headers = new HeaderDictionary();
+    string idUser = "user123";
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
 
-    var result = Result.Ok();
+    ReadVideoDTO expected = new()
+    {
+      Id = 1,
+      Categoria = new Models.Categoria() { Id = 1, Cor = "#ffffff", Title = "LIVRE" },
+      Description = "Teste do update video",
+      Title = "Teste Unitário",
+      Url = "https://www.youtoube.com/12341ewr1"
+    };
 
-    // _moqService.Setup(x => x.CheckUrl(updateVideoDTO)).Returns(result);
-    _moqService.Setup(x => x.UpdateVideoAsync(1, updateVideoDTO)).Returns(Task.FromResult<ReadVideoDTO?>(readVideoDTO));
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Returns(Task.FromResult<ReadVideoDTO?>(expected));
 
     // When
-    var response = await _controller.UpdateVideo(1, updateVideoDTO);
+    var response = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
     // Then
     Assert.IsType<CreatedAtActionResult>(response);
+
+    var result = Assert.IsType<CreatedAtActionResult>(response);
+    var actualVideo = Assert.IsType<ReadVideoDTO>(result.Value);
+
+    Assert.Equal(expected.Id, actualVideo.Id);
+    Assert.Equal(expected.Title, actualVideo.Title);
+    Assert.Equal(expected.Description, actualVideo.Description);
+    Assert.Equal(expected.Url, actualVideo.Url);
+    Assert.Equal(expected.Categoria, actualVideo.Categoria);
+    Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
   }
 
+  [Fact]
+  public async Task UpdateVideo_ReturnsInternalError_WhenExtractIdFromTokenFailAsync()
+  {
+    // Arrange
+    var videoDto = new CreateVideoDto();
+    var headers = new HeaderDictionary();
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    var expectedErrorMessage = "Erro ao extrair o id";
+
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Throws(new ErrorToGetUserIdException(expectedErrorMessage));
+
+    // Act
+    var result = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>()) as ObjectResult;
+
+    // Assert
+    _tokenServiceMock.Verify(t => t.ExtractID(headers["Authorization"]), Times.Once());
+    _tokenServiceMock.VerifyNoOtherCalls();
+    Assert.NotNull(result);
+    Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
+    Assert.Equal(expectedErrorMessage, result.Value);
+  }
+
+  [Fact]
+  public async void UpdateVideo_ReturnUnauthorized_WhenVideoServiceThrowNotTheVideoOwnerException()
+  {
+    // Given
+    var headers = new HeaderDictionary();
+    string idUser = "user123";
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
+    var exceptionMessage = "Você precisa ser o dono do vídeo pra poder altera-lo";
+
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Throws(new NotTheVideoOwnerException(exceptionMessage));
+    // When
+    var result = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>()) as ObjectResult;
+
+    // Then
+    Assert.IsType<UnauthorizedObjectResult>(result);
+    Assert.Equal(exceptionMessage, result.Value);
+  }
   #endregion
 
   //DELETE

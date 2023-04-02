@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Primitives;
+using PlayListAPI.Exceptions;
 using PlayListAPI.Services.Interfaces;
 
 namespace PlayListAPI.Services;
@@ -21,7 +22,7 @@ public class TokenExtract : ITokenExtract
     }
     catch (System.Exception)
     {
-      throw;
+      throw new ErrorToGetUserIdException("Um erro ocorreu ao tentar extrair o id do usuário.");
     }
   }
 }
