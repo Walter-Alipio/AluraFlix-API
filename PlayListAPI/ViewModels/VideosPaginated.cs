@@ -1,7 +1,7 @@
 using PlayListAPI.Data.DTOs.VideosDTOs;
 using dotenv.net;
 
-namespace PlayListAPI.Utils;
+namespace PlayListAPI.ViewModels;
 internal class VideosPaginated
 {
   private int Total { get; }

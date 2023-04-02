@@ -1,5 +1,5 @@
 using dotenv.net;
-
+namespace PlayListAPI.Utils;
 public static class Settings
 {
 

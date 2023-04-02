@@ -1,7 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Primitives;
+using PlayListAPI.Services.Interfaces;
 
-namespace PlayListAPI.Utils;
+namespace PlayListAPI.Services;
 public class TokenExtract : ITokenExtract
 {
   public string ExtractID(StringValues authHeader)

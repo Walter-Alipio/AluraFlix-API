@@ -4,7 +4,7 @@ using PlayListAPI.Services.Interfaces;
 using AutoMapper;
 using FluentResults;
 using PlayListAPI.Repository;
-using PlayListAPI.Utils;
+using PlayListAPI.ViewModels;
 
 namespace PlayListAPI.Services
 {

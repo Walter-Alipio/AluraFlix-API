@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Primitives;
-namespace PlayListAPI.Utils;
+namespace PlayListAPI.Services.Interfaces;
 
 public interface ITokenExtract
 {
