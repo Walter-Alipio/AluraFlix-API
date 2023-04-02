@@ -353,7 +353,7 @@ public class VideosControllerTest
   }
 
   [Fact]
-  public async void UpdateVideo_ReturnUnauthorized_WhenVideoServiceThrowNotTheVideoOwnerException()
+  public async void UpdateVideo_ReturnMethodNotAllowed_WhenVideoServiceThrowNotTheVideoOwnerException()
   {
     // Given
     var headers = new HeaderDictionary();
@@ -367,18 +367,24 @@ public class VideosControllerTest
     var result = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>()) as ObjectResult;
 
     // Then
-    Assert.IsType<UnauthorizedObjectResult>(result);
+    Assert.NotNull(result);
+    Assert.Equal(StatusCodes.Status405MethodNotAllowed, result.StatusCode);
     Assert.Equal(exceptionMessage, result.Value);
   }
   #endregion
 
   //DELETE
   [Fact]
-  public async void TestDeleteVideoReturnNotFound()
+  public async void DeleteVideo_ReturnNotFound()
   {
     // Given
+    var headers = new HeaderDictionary();
+    string idUser = "user123";
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
+
     Result result = Result.Fail("Não encontrado");
-    _moqService.Setup(x => x.DeleteVideoAsync(1)).Returns(Task.FromResult(result));
+    _moqService.Setup(x => x.DeleteVideoAsync(It.IsAny<int>())).Returns(Task.FromResult(result));
     // When
     var response = await _controller.DeleteVideo(1);
     // Then

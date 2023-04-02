@@ -126,7 +126,7 @@ public class VideosController : ControllerBase
     }
     catch (NotTheVideoOwnerException e)
     {
-      return Unauthorized(e.Message);
+      return StatusCode(StatusCodes.Status405MethodNotAllowed, e.Message);
     }
     catch (Exception e)
     {
