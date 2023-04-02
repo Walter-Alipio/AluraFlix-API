@@ -3,9 +3,6 @@ using PlayListAPI.Services.Interfaces;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using PlayListAPI.Utils;
 
 [ApiController]
 [Route("[controller]")]
@@ -32,7 +29,7 @@ public class VideosController : ControllerBase
     }
     catch (System.Exception e)
     {
-      return StatusCode(500, $" {e.Message}");
+      return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
 
     ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto, userId);
@@ -67,7 +64,7 @@ public class VideosController : ControllerBase
   {
     if (page <= 0) return NotFound();
 
-    var readList = await _videoService.GetPaginatedVideos(page, pageSize);
+    VideosPaginatedViewModel? readList = await _videoService.GetPaginatedVideos(page, pageSize);
     if (readList == null) return NotFound();
 
     return Ok(readList);
@@ -84,7 +81,7 @@ public class VideosController : ControllerBase
     }
     catch (System.Exception e)
     {
-      return StatusCode(500, $"Falha ao validar usuário {e.Message}");
+      return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
     List<ReadVideoDTO> readList = await _videoService.GetUserVideosAsync(userId);
     if (readList is null || !readList.Any()) return NotFound();
