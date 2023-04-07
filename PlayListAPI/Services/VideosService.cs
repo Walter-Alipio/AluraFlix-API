@@ -20,13 +20,13 @@ namespace PlayListAPI.Services
       _repository = repository;
     }
 
-    public async Task<ReadVideoDTO?> AddVideoAsync(CreateVideoDto videoDto, string userId)
+    public async Task<ReadVideoDTO> AddVideoAsync(CreateVideoDto videoDto, string userId)
     {
       Result resultado = CheckUrlPattern(videoDto);
 
       if (resultado.IsFailed)
       {
-        return null;
+        throw new ArgumentException("Formato de url inválido");
       }
 
       Video video = _mapper.Map<Video>(videoDto);
@@ -41,18 +41,18 @@ namespace PlayListAPI.Services
     }
 
 
-    public async Task<ReadVideoDTO?> GetVideoByIdAsync(int id)
+    public async Task<ReadVideoDTO> GetVideoByIdAsync(int id)
     {
       Video? video = await _repository.GetByIdAsync(id, v => v.Categoria);
       if (video == null)
       {
-        return null;
+        throw new NullReferenceException("Video não encontrado.");
       }
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
 
-    public async Task<List<ReadVideoDTO>?> GetVideosAsync(string? videoTitle)
+    public async Task<List<ReadVideoDTO>> GetVideosAsync(string? videoTitle)
     {
       List<Video> videos = await _repository.GetAll(v => v.Categoria);
       if (!videos.Any())
@@ -76,7 +76,7 @@ namespace PlayListAPI.Services
     }
 
 
-    public async Task<ReadVideoDTO?> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO, string userId)
+    public async Task<ReadVideoDTO> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO, string userId)
     {
 
       Video? video = await _repository.GetByIdAsync(id, v => v.Categoria)!;
@@ -87,7 +87,7 @@ namespace PlayListAPI.Services
 
       if (!userId.Equals(video.AuthorId))
       {
-        throw new NotTheVideoOwnerException("Você não é dono deste video.");
+        throw new NotTheOwnerException("Você não é dono deste video.");
       }
 
 
@@ -111,17 +111,19 @@ namespace PlayListAPI.Services
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
-    public async Task<Result> DeleteVideoAsync(int id)
+    public async Task DeleteVideoAsync(int id, string userId)
     {
       Video? video = await _repository.GetByIdAsync(id);
       if (video is null)
       {
-        return Result.Fail("Video não encontrado.");
+        throw new NullReferenceException("Video não encontrado.");
+      }
+      if (!userId.Equals(video.AuthorId))
+      {
+        throw new NotTheOwnerException("Você não é dono deste video.");
       }
 
       await _repository.Delete(video);
-
-      return Result.Ok();
     }
 
     public async Task<List<ReadVideoDTO>> GetUserVideosAsync(string userId)
@@ -135,11 +137,14 @@ namespace PlayListAPI.Services
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
-    public async Task<VideosPaginatedViewModel?> GetPaginatedVideos(int page, int pageSize)
+    public async Task<VideosPaginatedViewModel> GetPaginatedVideos(int page, int pageSize)
     {
       List<Video>? videos = await _repository.GetAllPaginatedAsync(page, pageSize, v => v.Categoria);
 
-      videos = videos is null ? new List<Video>() : videos;
+      if (!videos.Any())
+      {
+        throw new NullReferenceException("Nenhum video foi encontrado");
+      }
 
       List<ReadVideoDTO> videosPage = _mapper.Map<List<ReadVideoDTO>>(videos);
 

@@ -1,6 +1,5 @@
 using PlayListAPI.Data.DTOs.VideosDTOs;
 using PlayListAPI.Services.Interfaces;
-using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using PlayListAPI.Exceptions;
@@ -22,39 +21,49 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> AddVideo([FromBody] CreateVideoDto videoDto)
   {
-    string userId = string.Empty;
-
     try
     {
+      string userId = string.Empty;
       userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
+
+      ReadVideoDTO dto = await _videoService.AddVideoAsync(videoDto, userId);
+
+      return CreatedAtAction(nameof(ShowVideoById), new { Id = dto.Id }, dto);
+
     }
     catch (ErrorToGetUserIdException e)
     {
       return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
+    catch (ArgumentException e)
+    {
+      return StatusCode(StatusCodes.Status400BadRequest, e.Message);
+    }
 
-    ReadVideoDTO? dto = await _videoService.AddVideoAsync(videoDto, userId);
-    if (dto == null) return BadRequest();
-
-    return CreatedAtAction(nameof(ShowVideoById), new { Id = dto.Id }, dto);
   }
 
   [HttpGet("{id}")]
   [AllowAnonymous]
   public async Task<IActionResult> ShowVideoById(int id)
   {
-    ReadVideoDTO? readDto = await _videoService.GetVideoByIdAsync(id);
-    if (readDto == null) return NotFound();
+    try
+    {
+      ReadVideoDTO readDto = await _videoService.GetVideoByIdAsync(id);
 
-    return Ok(readDto);
+      return Ok(readDto);
+    }
+    catch (NullReferenceException e)
+    {
+      return StatusCode(StatusCodes.Status404NotFound, e.Message);
+    }
   }
 
   [HttpGet]
   [AllowAnonymous]
   public async Task<IActionResult> ShowAllVideos([FromQuery] string? search)
   {
-    List<ReadVideoDTO>? readDtoList = await _videoService.GetVideosAsync(search);
-    if (readDtoList == null || !readDtoList.Any()) return NotFound();
+    List<ReadVideoDTO> readDtoList = await _videoService.GetVideosAsync(search);
+    if (!readDtoList.Any()) return NotFound();
 
     return Ok(readDtoList);
   }
@@ -65,10 +74,17 @@ public class VideosController : ControllerBase
   {
     if (page <= 0) return NotFound();
 
-    VideosPaginatedViewModel? readList = await _videoService.GetPaginatedVideos(page, pageSize);
-    if (readList == null) return NotFound();
+    try
+    {
+      VideosPaginatedViewModel readList = await _videoService.GetPaginatedVideos(page, pageSize);
 
-    return Ok(readList);
+      return Ok(readList);
+    }
+    catch (NullReferenceException e)
+    {
+      return StatusCode(StatusCodes.Status404NotFound, e.Message);
+    }
+
   }
 
   [HttpGet("/Meus_Videos")]
@@ -85,7 +101,7 @@ public class VideosController : ControllerBase
       return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
     List<ReadVideoDTO> readList = await _videoService.GetUserVideosAsync(userId);
-    if (readList is null || !readList.Any()) return NotFound();
+    if (!readList.Any()) return NotFound();
 
     return Ok(readList);
   }
@@ -95,36 +111,30 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> UpdateVideo(int id, [FromBody] UpdateVideoDTO videoDTO)
   {
-    string userId = string.Empty;
-
     try
     {
+
+      ReadVideoDTO? selectedVideo;
+      string userId = string.Empty;
       userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
+
+      selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO, userId);
+
+      return CreatedAtAction(nameof(ShowVideoById), new { Id = selectedVideo.Id }, selectedVideo);
     }
     catch (ErrorToGetUserIdException e)
     {
       return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
     }
-
-
-    ReadVideoDTO? selectedVideo;
-    try
-    {
-      selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO, userId);
-
-      if (selectedVideo is null) return NotFound();
-
-      return CreatedAtAction(nameof(ShowVideoById), new { Id = selectedVideo.Id }, selectedVideo);
-    }
     catch (ArgumentException e)
     {
       return BadRequest(e.Message);
     }
-    catch (NullReferenceException)
+    catch (NullReferenceException e)
     {
-      return NotFound();
+      return StatusCode(StatusCodes.Status404NotFound, e.Message);
     }
-    catch (NotTheVideoOwnerException e)
+    catch (NotTheOwnerException e)
     {
       return StatusCode(StatusCodes.Status405MethodNotAllowed, e.Message);
     }
@@ -138,10 +148,29 @@ public class VideosController : ControllerBase
   [Authorize(Roles = "user")]
   public async Task<IActionResult> DeleteVideo(int id)
   {
-    Result result = await _videoService.DeleteVideoAsync(id);
-    if (result.IsFailed) return NotFound();
+    try
+    {
 
-    return NoContent();
+      string userId = string.Empty;
+      userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
+
+      await _videoService.DeleteVideoAsync(id, userId);
+      return NoContent();
+
+    }
+    catch (ErrorToGetUserIdException e)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+    }
+    catch (NullReferenceException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (NotTheOwnerException e)
+    {
+      return StatusCode(StatusCodes.Status405MethodNotAllowed, e.Message);
+    }
+
   }
 
 }

@@ -34,27 +34,28 @@ public class VideosControllerTest
     };
   }
 
-  #region  POST 
+  #region POST 
   [Fact]
-  public async Task AddVideo_ReturnsBadRequest_WhenVideoServiceFails()
+  public async Task AddVideo_ReturnsBadRequest_WhenVideoThrowArgumentException()
   {
     // Arrange
     var videoDto = new CreateVideoDto();
     var headers = new HeaderDictionary();
     headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
     _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns("user123");
-    var expectedBadRequestResult = new BadRequestResult();
 
+    var errorMessage = "Formato de url inválido";
     // Simulate the video service failing to add a video
     _moqService.Setup(s => s.AddVideoAsync(It.IsAny<CreateVideoDto>(), It.IsAny<string>()))
-                     .ReturnsAsync((ReadVideoDTO?)null);
+                     .Throws(new ArgumentException(errorMessage));
 
     // Act
-    var result = await _controller.AddVideo(videoDto);
+    var response = await _controller.AddVideo(videoDto) as ObjectResult;
 
     // Assert
-    Assert.IsType<BadRequestResult>(result);
-    Assert.Equal(expectedBadRequestResult.StatusCode, (result as BadRequestResult).StatusCode);
+    Assert.NotNull(response);
+    Assert.Equal(StatusCodes.Status400BadRequest, response.StatusCode);
+    Assert.Equal(errorMessage, response.Value);
   }
 
   [Fact]
@@ -112,6 +113,56 @@ public class VideosControllerTest
 
   #endregion
 
+  #region GET ShowVideoById
+
+  [Fact]
+  public async Task ShowVideoById_ReturnsNotFound_WhenServiceThrowsNullException()
+  {
+    // Given
+    var errorMessage = "Video não encontrado";
+    _moqService.Setup(s => s.GetVideoByIdAsync(It.IsAny<int>())).Throws(new NullReferenceException(errorMessage));
+
+    // When
+    var response = await _controller.ShowVideoById(It.IsAny<int>()) as ObjectResult;
+
+    // Then
+    Assert.NotNull(response);
+  }
+
+  [Fact]
+  public async void ShowVideoById_ReturnOkObjectResult_WithVideo()
+  {
+    //Arrange
+
+    var expected = new ReadVideoDTO()
+    {
+      Description = "Uma aventura sem igual",
+      Id = 1,
+      Title = "Os Gunnes",
+      Url = "www.youtube.com/wer234"
+    };
+
+    _moqService.Setup(x => x.GetVideoByIdAsync(It.IsAny<int>())).Returns(Task.FromResult<ReadVideoDTO>(expected));
+
+    //Act
+    var result = await _controller.ShowVideoById(It.IsAny<int>());
+
+    //Assert
+    Assert.NotNull(result);
+    Assert.IsType<OkObjectResult>(result);
+
+    var objectResult = Assert.IsType<OkObjectResult>(result);
+    var actualVideo = Assert.IsType<ReadVideoDTO>(objectResult.Value);
+
+    Assert.Equal(expected.Id, actualVideo.Id);
+    Assert.Equal(expected.Title, actualVideo.Title);
+    Assert.Equal(expected.Description, actualVideo.Description);
+    Assert.Equal(expected.Url, actualVideo.Url);
+    Assert.Equal(StatusCodes.Status200OK, objectResult.StatusCode);
+  }
+
+  #endregion
+
   #region GET ShowAllVideos
   [Fact]
   public async Task ShowAllVideos_ReturnNotFound_WhenVideoServiceReturnEmpity()
@@ -163,7 +214,8 @@ public class VideosControllerTest
   public async Task ShowVideosPaginated_ReturnNotFound_WhenPageIsZero_and_VideoServiceIsNull()
   {
     // Given
-    _moqService.Setup(s => s.GetPaginatedVideos(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult<VideosPaginatedViewModel?>(null));
+    var errorMessage = "Nenhum video encontrado";
+    _moqService.Setup(s => s.GetPaginatedVideos(It.IsAny<int>(), It.IsAny<int>())).Throws(new NullReferenceException(errorMessage));
 
     // When
     var pageZero = await _controller.ShowVideosPaginated(0, 5);
@@ -255,7 +307,7 @@ public class VideosControllerTest
 
   #endregion
 
-  #region  PUT
+  #region PUT
   [Fact]
   public async void UpdateVideo_ReturnBadRequest_WhenVideoServiceThrowArgumentException()
   {
@@ -282,16 +334,17 @@ public class VideosControllerTest
     headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
     _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
 
-    // When
-    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Throws(new NullReferenceException());
-    var responseNullReferenceE = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
+    var errorMessage = "Video não encontrado";
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>()))
+        .Throws(new NullReferenceException(errorMessage));
 
-    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Returns(Task.FromResult<ReadVideoDTO?>(null));
-    var resultNull = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
+    // When
+    var response = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>()) as ObjectResult;
 
     // Then
-    Assert.IsType<NotFoundResult>(resultNull);
-    Assert.IsType<NotFoundResult>(responseNullReferenceE);
+    Assert.NotNull(response);
+    Assert.Equal(StatusCodes.Status404NotFound, response.StatusCode);
+    Assert.Equal(errorMessage, response.Value);
   }
 
   [Fact]
@@ -362,7 +415,7 @@ public class VideosControllerTest
     _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
     var exceptionMessage = "Você precisa ser o dono do vídeo pra poder altera-lo";
 
-    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Throws(new NotTheVideoOwnerException(exceptionMessage));
+    _moqService.Setup(x => x.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>())).Throws(new NotTheOwnerException(exceptionMessage));
     // When
     var result = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>()) as ObjectResult;
 
@@ -373,9 +426,31 @@ public class VideosControllerTest
   }
   #endregion
 
-  //DELETE
+  #region DELETE
   [Fact]
-  public async void DeleteVideo_ReturnNotFound()
+  public async Task DeleteVideo_ReturnsInternalError_WhenExtractIdFromTokenFailAsync()
+  {
+    // Arrange
+    var videoDto = new CreateVideoDto();
+    var headers = new HeaderDictionary();
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    var expectedErrorMessage = "Erro ao extrair o id";
+
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Throws(new ErrorToGetUserIdException(expectedErrorMessage));
+
+    // Act
+    var result = await _controller.DeleteVideo(It.IsAny<int>()) as ObjectResult;
+
+    // Assert
+    _tokenServiceMock.Verify(t => t.ExtractID(headers["Authorization"]), Times.Once());
+    _tokenServiceMock.VerifyNoOtherCalls();
+    Assert.NotNull(result);
+    Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
+    Assert.Equal(expectedErrorMessage, result.Value);
+  }
+
+  [Fact]
+  public async void DeleteVideo_ReturnNotFound_WhenServiceThrowsNullReferenceException()
   {
     // Given
     var headers = new HeaderDictionary();
@@ -383,23 +458,52 @@ public class VideosControllerTest
     headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
     _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
 
-    Result result = Result.Fail("Não encontrado");
-    _moqService.Setup(x => x.DeleteVideoAsync(It.IsAny<int>())).Returns(Task.FromResult(result));
+    string errorMessage = "Não encontrado";
+    _moqService.Setup(x => x.DeleteVideoAsync(It.IsAny<int>(), It.IsAny<string>())).Throws(new NullReferenceException(errorMessage));
+
     // When
-    var response = await _controller.DeleteVideo(1);
+    var response = await _controller.DeleteVideo(It.IsAny<int>()) as ObjectResult;
+
     // Then
-    Assert.IsType<NotFoundResult>(response);
+    _tokenServiceMock.Verify(t => t.ExtractID(headers["Authorization"]), Times.Once());
+    _tokenServiceMock.VerifyNoOtherCalls();
+    Assert.NotNull(response);
+    Assert.Equal(StatusCodes.Status404NotFound, response.StatusCode);
+    Assert.Equal(errorMessage, response.Value);
   }
+
+  [Fact]
+  public async void DeleteVideo_ReturnMethodNotAllowed_WhenVideoServiceThrowNotTheVideoOwnerException()
+  {
+    // Given
+    var headers = new HeaderDictionary();
+    string idUser = "user123";
+    headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
+    _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
+    var exceptionMessage = "Você precisa ser o dono do vídeo pra poder altera-lo";
+
+    _moqService.Setup(x => x.DeleteVideoAsync(It.IsAny<int>(), It.IsAny<string>())).Throws(new NotTheOwnerException(exceptionMessage));
+
+    // When
+    var result = await _controller.DeleteVideo(It.IsAny<int>()) as ObjectResult;
+
+    // Then
+    Assert.NotNull(result);
+    Assert.Equal(StatusCodes.Status405MethodNotAllowed, result.StatusCode);
+    Assert.Equal(exceptionMessage, result.Value);
+  }
+
   [Fact]
   public async void TestDeleteVideoReturnNoContent()
   {
     // Given
     Result result = Result.Ok();
-    _moqService.Setup(x => x.DeleteVideoAsync(1)).Returns(Task.FromResult(result));
+    _moqService.Setup(x => x.DeleteVideoAsync(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(result));
     // When
-    var response = await _controller.DeleteVideo(1);
+    var response = await _controller.DeleteVideo(It.IsAny<int>());
     // Then
     Assert.IsType<NoContentResult>(response);
   }
+  #endregion 
 
 }
