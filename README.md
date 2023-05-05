@@ -1,8 +1,14 @@
 # AluraFlix
 
-# Challenge Back-End 5ª edição
+A plataforma que permiti aos usuários montar playlists com links para seus vídeos preferidos, separados por categorias.
 
-## API Rest
+| :placard: Vitrine.Dev |                                                      |
+| --------------------- | ---------------------------------------------------- |
+| :sparkles: Nome       | **Challenge Back-End 5ª edição - AluraFlix**         |
+| :label: Tecnologias   | c#, .Net 6, SQL Server, Entity, Identity, JWT, XUnit |
+| :fire: Desafio        | https://www.alura.com.br/challenges/back-end         |
+
+#
 
 ![Badge em desenvolvimento](https://img.shields.io/badge/Status-Em%20Desenvolvimento-green)
 
