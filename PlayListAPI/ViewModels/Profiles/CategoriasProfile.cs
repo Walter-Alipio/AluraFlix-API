@@ -2,7 +2,7 @@ using PlayListAPI.Models;
 using PlayListAPI.Data.DTOs.CategoriasDTOs;
 using AutoMapper;
 
-namespace PlayListAPI.Profiles
+namespace PlayListAPI.ViewModels.Profiles
 {
   public class CategoriasProfile : Profile
   {
