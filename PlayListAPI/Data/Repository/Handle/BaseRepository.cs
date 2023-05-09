@@ -18,7 +18,7 @@ public class BaseRepository<T> : IBaseRepository<T>
     await this.context.SaveChangesAsync();
   }
 
-  public async Task<List<T>> GetAllPaginatedAsync(int page, int pageSize, Expression<Func<T, object>>? include = null)
+  public async Task<List<T>?> GetAllPaginatedAsync(int page, int pageSize, Expression<Func<T, object>>? include = null)
   {
     var query = this.context.Set<T>().AsQueryable();
 
@@ -40,7 +40,7 @@ public class BaseRepository<T> : IBaseRepository<T>
     await this.context.SaveChangesAsync();
   }
 
-  public async Task<List<T>> GetAll(Expression<Func<T, object>>? include = null)
+  public async Task<List<T>?> GetAll(Expression<Func<T, object>>? include = null)
   {
     var query = this.context.Set<T>().AsQueryable();
 

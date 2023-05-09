@@ -10,13 +10,15 @@ public class TokenExtract : ITokenExtract
   {
     try
     {
-      var token = authHeader.First().Substring("Bearer ".Length).Trim();
+      var token = authHeader.First()?.Substring("Bearer ".Length).Trim();
 
       // Extrair as reivindicações do token JWT
       var handler = new JwtSecurityTokenHandler();
       var claims = handler.ReadJwtToken(token).Claims;
 
       var userIdClaim = claims.FirstOrDefault(c => c.Type == "id");
+
+      if (userIdClaim is null) throw new ArgumentException();
 
       return userIdClaim.Value;
     }
