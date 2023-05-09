@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlayListAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class VideosUser : Migration
+    public partial class Videoupdatedate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,8 +31,7 @@ namespace PlayListAPI.Migrations
                 name: "DeletedAt",
                 table: "Videos",
                 type: "datetime2",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "ModifyAt",
@@ -46,9 +45,14 @@ namespace PlayListAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "99999", "50b7af19-943e-49a0-9469-54266ddc5789", "admin", "ADMIN" },
-                    { "999998", "53eae9ce-a963-48df-a8aa-f346ae9f4eb4", "user", "USER" }
+                    { "99999", "4065f49b-a4eb-47ae-8708-41659f39ed66", "admin", "ADMIN" },
+                    { "999998", "9d5d4710-7466-4a20-be56-b6420032ba7f", "user", "USER" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "99999", 0, "6ad1fb69-ec96-484a-90f2-2094bf608ed7", "admin@example.com", true, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAEAACcQAAAAEPP/U+CsUw/mFdycZdyTcudKfwmVIDVIrGqE1vHcxLyL5XUm+S6UE2bKvHT0GhBA5A==", null, false, "", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
@@ -71,6 +75,11 @@ namespace PlayListAPI.Migrations
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "99999");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "99999");
 

@@ -52,14 +52,14 @@ namespace PlayListAPI.Migrations
                         new
                         {
                             Id = "99999",
-                            ConcurrencyStamp = "50b7af19-943e-49a0-9469-54266ddc5789",
+                            ConcurrencyStamp = "4065f49b-a4eb-47ae-8708-41659f39ed66",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "999998",
-                            ConcurrencyStamp = "53eae9ce-a963-48df-a8aa-f346ae9f4eb4",
+                            ConcurrencyStamp = "9d5d4710-7466-4a20-be56-b6420032ba7f",
                             Name = "user",
                             NormalizedName = "USER"
                         });
@@ -153,6 +153,24 @@ namespace PlayListAPI.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "99999",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "6ad1fb69-ec96-484a-90f2-2094bf608ed7",
+                            Email = "admin@example.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAEAACcQAAAAEPP/U+CsUw/mFdycZdyTcudKfwmVIDVIrGqE1vHcxLyL5XUm+S6UE2bKvHT0GhBA5A==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -282,7 +300,7 @@ namespace PlayListAPI.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")

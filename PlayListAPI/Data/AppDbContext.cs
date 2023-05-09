@@ -21,6 +21,18 @@ namespace PlayListAPI.Data
       //adicionado para cria��o da migra��o.
       base.OnModelCreating(builder);
 
+      builder.Entity<IdentityUser>().HasData(new IdentityUser
+      {
+        Id = "99999",
+        UserName = "admin",
+        NormalizedUserName = "ADMIN",
+        Email = "admin@example.com",
+        NormalizedEmail = "ADMIN@EXAMPLE.COM",
+        EmailConfirmed = true,
+        PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "MySecurePassword123!"),
+        SecurityStamp = string.Empty
+      });
+
       builder.Entity<IdentityUserRole<string>>()
       .HasData(
            new IdentityUserRole<string> { RoleId = "99999", UserId = "99999" }
