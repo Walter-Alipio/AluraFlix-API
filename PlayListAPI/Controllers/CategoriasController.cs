@@ -45,7 +45,7 @@ namespace PlayListAPI.Controllers
     public async Task<IActionResult> ShowAllCategorias()
     {
       List<ReadCategoriasDto> categoriasDtos = await _categoriaService.ShowAllCategoriasAsync();
-      if (!categoriasDtos.Any()) return NotFound();
+      if (!categoriasDtos.Any()) return NotFound("Nenhuma categoria encontrada");
       return Ok(categoriasDtos);
     }
     [HttpPut("{id}")]

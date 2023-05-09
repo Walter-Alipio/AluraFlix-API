@@ -63,7 +63,7 @@ public class VideosController : ControllerBase
   public async Task<IActionResult> ShowAllVideos([FromQuery] string? search)
   {
     List<ReadVideoDTO> readDtoList = await _videoService.GetVideosAsync(search);
-    if (!readDtoList.Any()) return NotFound();
+    if (!readDtoList.Any()) return NotFound("Nenhum video encontrado.");
 
     return Ok(readDtoList);
   }
