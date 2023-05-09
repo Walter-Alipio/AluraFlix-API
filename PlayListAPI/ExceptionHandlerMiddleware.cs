@@ -1,7 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-
 namespace PlayListAPI
 {
   public class ExceptionHandlerMiddleware
@@ -24,6 +20,7 @@ namespace PlayListAPI
       {
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         httpContext.Response.ContentType = "application/json";
+        System.Console.WriteLine(exception.Message);
       }
     }
 

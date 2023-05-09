@@ -12,6 +12,7 @@ using PlayListAPI.Repository.Handle;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
 using PlayListAPI.Utils;
+using PlayListAPI.ViewModels.CustomMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +69,7 @@ builder.Services.AddScoped<IVideoServiceUserData, VideosService>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+builder.Services.AddScoped<ICustomMapVideo, CustomMapVideo>();
 
 builder.Services.AddScoped<RegisterService, RegisterService>();
 builder.Services.AddScoped<LoginService, LoginService>();

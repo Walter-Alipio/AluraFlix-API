@@ -23,8 +23,12 @@ public class LoginService
     if (identity.Result.Succeeded)
     {
       var identityUser = _signInManager.UserManager.Users.FirstOrDefault(user => user.NormalizedUserName == loginRequest.UserName.ToUpper());
+      if (identityUser is null)
+      {
+        throw new NullReferenceException();
+      }
 
-      var token = _token.CreateToken(identityUser!, _signInManager
+      var token = _token.CreateToken(identityUser, _signInManager
           .UserManager.GetRolesAsync(identityUser).Result.FirstOrDefault());
 
       return Result.Ok().WithSuccess(token.Value);
