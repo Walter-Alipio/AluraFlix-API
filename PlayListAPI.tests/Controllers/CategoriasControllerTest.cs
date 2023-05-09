@@ -101,7 +101,7 @@ public class CategoriasControllerTest
     // When
     var response = await _controller.ShowAllCategorias();
     // Then
-    Assert.IsType<NotFoundResult>(response);
+    Assert.IsType<NotFoundObjectResult>(response);
   }
 
   [Fact]

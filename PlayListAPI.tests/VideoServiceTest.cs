@@ -1,11 +1,15 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using FluentResults;
 using Moq;
 using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.Exceptions;
 using PlayListAPI.Models;
 using PlayListAPI.Repository;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
+using PlayListAPI.ViewModels.CustomMapper;
+using PlayListAPI.ViewModels.Profiles;
 
 namespace PlayListAPI.tests;
 
@@ -21,24 +25,24 @@ public class VideoServiceTest
     var configuration = new MapperConfiguration(cfg => cfg.AddProfile(profile));
     IMapper mapper = new Mapper(configuration);
 
-    _service = new VideosService(mapper, _MockRepository.Object);
+    var _customMapper = new CustomMapVideo();
+    _service = new VideosService(mapper, _MockRepository.Object, _customMapper);
   }
+
   [Fact]
-  public async void TestGetVideosReturnNullAsync()
+  public async void GetVideosAsync_ReturnsEmptyList_WhenRepositoryReturnsNull()
   {
     // Given
-    var videos = new List<Video>();
-    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult(videos));
-    var expct = new List<ReadVideoDTO>();
+    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult<List<Video>?>(null));
     // When
-    var result = await _service.GetVideosAsync("");
+    var result = await _service.GetVideosAsync(null);
 
     // Then
-    Assert.Equal(expct, result);
+    Assert.Empty(result);
   }
 
   [Fact]
-  public async Task TestGetVideosWithParamsReturnEmptyListAsync()
+  public async Task GetVideos_ReturnsEmptyList_WhenVideoNameIsNotFound()
   {
     // Given
     var title = "Tentei fazer uma API e olha no que deu";
@@ -51,15 +55,17 @@ public class VideoServiceTest
         };
     var expct = new List<ReadVideoDTO>();
 
-    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult(videos));
+    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult<List<Video>?>(videos));
     // When
     var result = await _service.GetVideosAsync(title);
     // Then
+    Assert.NotNull(result);
     Assert.Empty(result);
+    Assert.IsType<List<ReadVideoDTO>>(result);
   }
 
   [Fact]
-  public async void TestGeVideosReturnListAsync()
+  public async void GeVideos_ReturnsReadVideoDTOList_WhenGetAllIsSuccessful()
   {
     // Given
     var title = "Tentei fazer uma API e olha no que deu";
@@ -72,141 +78,183 @@ public class VideoServiceTest
              new Video() {Title = "Bolha Tec"},
         };
 
-    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult(videos));
+    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult<List<Video>?>(videos));
     // When
     var resultNoParams = await _service.GetVideosAsync("");
     var resultWithParams = await _service.GetVideosAsync(title);
     // Then
     Assert.IsType<List<ReadVideoDTO>>(resultNoParams);
+    Assert.Equal(videos.Count(), resultNoParams.Count());
     Assert.NotEmpty(resultWithParams);
+    Assert.Equal(title, resultWithParams[0].Title);
   }
 
   [Fact]
-  public async void TestGetVideoByIdReturnNullAsync()
+  public async void GetVideoById_ThrowsNullReferenceException_WhenVideoIsNotFound()
   {
     // Given
-    int id = 0;
+    var expectedMessage = "Video não encontrado.";
 
-    _MockRepository.Setup(d => d.GetByIdAsync(id, v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
 
     // When
-    var result = await _service.GetVideoByIdAsync(0);
+    var result = await Assert.ThrowsAsync<NullReferenceException>(() => _service.GetVideoByIdAsync(It.IsAny<int>()));
     // Then
-    Assert.Null(result);
+    Assert.NotNull(result);
+    Assert.Equal(expectedMessage, result.Message);
 
   }
 
   [Fact]
-  public async Task TestGetUserVideoReturnsEmptyAsync()
+  public async Task GetUserVideo_ReturnsEmptyList_WhenThereIsNoUserVideos()
   {
     // Given
-    var userId = "gh234gh1234g";
-
     List<Video> videos = new List<Video>();
-    _MockRepository.Setup(d => d.GetAllUserVideos(userId)).Returns(Task.FromResult(videos));
+    _MockRepository.Setup(d => d.GetAllUserVideos(It.IsAny<string>())).Returns(Task.FromResult(videos));
+
     // When
-    var result = await _service.GetUserVideosAsync(userId);
+    var result = await _service.GetUserVideosAsync(It.IsAny<string>());
+
     // Then
+    Assert.NotNull(result);
     Assert.Empty(result);
+    Assert.IsType<List<ReadVideoDTO>>(result);
   }
+
   [Fact]
-  public async void TestGetUserVideoReturnsListAsync()
+  public async void GetUserVideo_ReturnsReadVideoDTOList_WhenGetUserVideosIsSuccessful()
   {
     // Given
     var userId = "gh234gh1234g";
 
     var videos = new List<Video>()
         {
-             new Video() {Title = "Como se tornar desenvolvedor em 3 passos" , AuthorId = "gh234gh1234g"},
-             new Video() {Title = "Front-end vs Back-end", AuthorId = "gh234gh1234g"},
-             new Video() {Title = "Bolha Tec" , AuthorId = "gh234gh1234g"},
+             new Video() {Title = "Como se tornar desenvolvedor em 3 passos" , AuthorId = userId},
+             new Video() {Title = "Front-end vs Back-end", AuthorId = userId},
+             new Video() {Title = "Bolha Tec" , AuthorId = userId},
         };
 
     _MockRepository.Setup(d => d.GetAllUserVideos(userId)).Returns(Task.FromResult(videos));
     // When
     var result = await _service.GetUserVideosAsync(userId);
     // Then
+    Assert.NotEmpty(result);
     Assert.IsType<List<ReadVideoDTO>>(result);
   }
 
   [Fact]
-  public async void TestUpdateVideoAsyncReturnNullAsync()
+  public async void UpdateVideoAsync_ThrowsNullReferenceException_WhenVideoNotFound()
   {
     // Given
-    int id = 0;
-    var videoDTO = new UpdateVideoDTO();
-
-    _MockRepository.Setup(d => d.GetByIdAsync(id, v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
+    var expectedMessage = "Video não encontrado.";
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
 
     // When
-
     // Then
-    await Assert.ThrowsAsync<NullReferenceException>(async () => await _service.UpdateVideoAsync(id, videoDTO, It.IsAny<string>()));
+    var restul = await Assert.ThrowsAsync<NullReferenceException>(() => _service.UpdateVideoAsync(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>(), It.IsAny<string>()));
+    Assert.NotNull(restul);
+    Assert.Equal(expectedMessage, restul.Message);
   }
 
   [Fact]
-  public async Task TestUpdateVideoAsyncReturnReadVideoAsync()
+  public async Task UpdateVideoAsync_ReturnReadVideo_WhenUpdateIsSuccessful()
   {
     // Given
-
-    int id = 0;
+    var userId = "sorte";
     var videoDTO = new UpdateVideoDTO();
-    var video = new Video();
+    Video expected = new Video()
+    {
+      Id = 123,
+      Title = "teste",
+      AuthorId = userId,
+      Description = "teste automatizado do delete",
+      CategoriaId = 1,
+    };
 
-    _MockRepository.Setup(d => d.GetByIdAsync(id, v => v.Categoria)).Returns(Task.FromResult<Video?>(video));
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), null)).Returns(Task.FromResult<Video?>(expected));
+    _MockRepository.Setup(d => d.UpdateAsync(It.IsAny<Video>())).Returns(Task.CompletedTask);
 
     // When
-    var result = await _service.UpdateVideoAsync(id, videoDTO, It.IsAny<string>());
+    var result = await _service.UpdateVideoAsync(It.IsAny<int>(), videoDTO, userId);
+
     // Then
-    _MockRepository.Verify(d => d.UpdateAsync(video), Times.Once);
+    _MockRepository.Verify(d => d.UpdateAsync(expected), Times.Once);
+    Assert.NotNull(result);
     Assert.IsType<ReadVideoDTO>(result);
+    Assert.Equal(expected.Id, result.Id);
+    Assert.Equal(expected.Url, result.Url);
+    Assert.Equal(expected.Categoria, result.Categoria);
+    Assert.Equal(expected.Description, result.Description);
   }
 
   [Fact]
-  public async void TestDeleteVideoAsyncReturnResultFail()
+  public async void DeleteVideoAsync_ThrowsNullReferenceException_WhenVideoNotFound()
   {
     // Given
-    int id = 0;
-    var expct = new Result();
-
-    _MockRepository.Setup(d => d.GetByIdAsync(id, v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
+    var expectedMessage = "Video não encontrado.";
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
 
     // When
-    // var result = await _service.DeleteVideoAsync(id, It.IsAny<string>());
-
+    var result = await Assert.ThrowsAsync<NullReferenceException>(() => _service.DeleteVideoAsync(It.IsAny<int>(), It.IsAny<string>()));
     // Then
-    // Assert.True(result.IsFailed);
+    Assert.NotNull(result);
+    Assert.Equal(expectedMessage, result.Message);
   }
 
   [Fact]
-  public async void TestDeleteVideoAsyncReturnResultSuccess()
+  public async void DeleteVideoAsync_ThrowsNotTheOwnerException_WhenUserIsNotTheVideoOwner()
+  {
+    var expectedMessage = "Você não permissão para deletar este video.";
+    var userId = "DFWER@#$";
+    var video = new Video()
+    {
+      Title = "Como se tornar desenvolvedor em 3 passos",
+      AuthorId = "Er@#4",
+      Categoria = new Categoria(),
+      CategoriaId = 1,
+      Id = 1
+    };
+
+    // Given
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), null)).Returns(Task.FromResult<Video?>(video));
+
+    // When
+    // Then
+    var result = await Assert.ThrowsAsync<NotTheOwnerException>(() => _service.DeleteVideoAsync(It.IsAny<int>(), userId));
+    Assert.NotNull(result);
+    Assert.IsType<NotTheOwnerException>(result);
+    Assert.Equal(expectedMessage, result.Message);
+  }
+
+  [Fact]
+  public async void DeleteVideoAsync_CallsRepositoryDelete_WhenDeleteIsSuccessful()
   {
     // Given
-    int id = 123;
+    var userId = "sorte";
+
     var video = new Video()
     {
       Id = 123,
       Title = "teste",
+      AuthorId = userId,
       Description = "teste automatizado do delete",
       CategoriaId = 1,
     };
-    var expct = new Result();
 
-
-    _MockRepository.Setup(d => d.GetByIdAsync(id, null)).Returns(Task.FromResult<Video?>(video));
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), null)).Returns(Task.FromResult<Video?>(video));
 
     // When
-    // var result = await _service.DeleteVideoAsync(id, It.IsAny<string>());
+    await _service.DeleteVideoAsync(It.IsAny<int>(), userId);
 
     // Then
     _MockRepository.Verify(d => d.Delete(video), Times.Once);
-    // Assert.True(result.IsSuccess);
   }
 
   [Fact]
-  public async void TestAddVideoAsyncReturnFail()
+  public async void AddVideoAsync_ThrowsArgumentException_WhenUrlFormatInvalid()
   {
     // Given
+    var expectedMessage = "Formato de url inválido";
     CreateVideoDto videoDto = new()
     {
       CategoriaId = 1,
@@ -217,13 +265,15 @@ public class VideoServiceTest
     string userId = "!@#FAERG#$@!@#CR$V%T%TY$%Y";
 
     // When
-    var result = await _service.AddVideoAsync(videoDto, userId);
+    var result = await Assert.ThrowsAsync<ArgumentException>(() => _service.AddVideoAsync(videoDto, userId));
     // Then
-    Assert.Null(result);
+    Assert.NotNull(result);
+    Assert.IsType<ArgumentException>(result);
+    Assert.Equal(expectedMessage, result.Message);
   }
 
   [Fact]
-  public async void TestAddVideoAsyncReturnSuccess()
+  public async void AddVideoAsync_ReturnReadVideoDTO_WhenAddIsSuccessful()
   {
     // Given
     CreateVideoDto videoDto = new()
@@ -233,13 +283,15 @@ public class VideoServiceTest
       Url = "https://www.youtube.com/watch?v=BTENKdRVS2U",
       Description = "O MÍNIMO QUE VOCÊ PRECISA SABER ANTES DE PROGRAMAR!"
     };
-    string userId = "!@#FAERG#$@!@#CR$V%T%TY$%Y";
 
     // When
-    var result = await _service.AddVideoAsync(videoDto, userId);
+    var result = await _service.AddVideoAsync(videoDto, It.IsAny<string>());
     // Then
 
-    Assert.IsType<ReadVideoDTO>(result);
+    Assert.NotNull(result);
+    Assert.Equal(videoDto.Title, result.Title);
+    Assert.Equal(videoDto.Description, result.Description);
+    Assert.Equal(videoDto.Url, result.Url);
   }
 
 }
