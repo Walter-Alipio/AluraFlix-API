@@ -1,7 +1,6 @@
 using PlayListAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using PlayListAPI.Data.EntityConfiguration;
 using Microsoft.AspNetCore.Identity;
 
 namespace PlayListAPI.Data
@@ -38,8 +37,14 @@ namespace PlayListAPI.Data
            new IdentityUserRole<string> { RoleId = "99999", UserId = "99999" }
       );
 
+      builder.Entity<Categoria>().HasData(new Categoria
+      {
+        Id = 1,
+        Title = "LIVRE",
+        Cor = "#FFFFFF"
+      });
+
       builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
-
   }
 }

@@ -17,7 +17,7 @@ public class VideoEntityTypeConfiguration : IEntityTypeConfiguration<Video>
       .WithMany(categoia => categoia.Videos)
       .HasForeignKey(video => video.CategoriaId)
       .IsRequired(false)
-      .OnDelete(DeleteBehavior.SetNull);
+      .OnDelete(DeleteBehavior.Restrict);
 
   }
 }
