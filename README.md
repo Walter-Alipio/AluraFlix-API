@@ -1,6 +1,6 @@
 # AluraFlix - API
 
-[AluraFlix - API](./img/AluraFlix-Logo.png#vitrinedev)
+<img src="./img/AluraFlix-Logo.png">
 
 A plataforma que permiti aos usuários montar playlists com links para seus vídeos preferidos, separados por categorias.
 
@@ -100,9 +100,9 @@ O adminstrador deve ser criado direto no banco de dados e deve ser atribuído o 
 Crie um arquivo `.env` na raiz do projeto PlayListAPI seguindo o modelo do arquivo `.env.example`
 <br><br>
 
-[API - Endpoints](./img/API.png)
-
 # **Rotas do projeto**
+
+<img src="./img/API.png#vitrinedev">
 
 # Categorias
 
