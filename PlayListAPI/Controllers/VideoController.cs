@@ -28,7 +28,14 @@ public class VideosController : ControllerBase
 
       ReadVideoDTO dto = await _videoService.AddVideoAsync(videoDto, userId);
 
-      return CreatedAtAction(nameof(ShowVideoById), new { Id = dto.Id }, dto);
+      return CreatedAtAction(nameof(ShowVideoById), new { Id = dto.Id }, new
+      {
+        dto.Id,
+        dto.Title,
+        dto.Description,
+        dto.Url,
+        videoDto.CategoriaId
+      });
 
     }
     catch (ErrorToGetUserIdException e)
@@ -120,7 +127,7 @@ public class VideosController : ControllerBase
 
       selectedVideo = await _videoService.UpdateVideoAsync(id, videoDTO, userId);
 
-      return CreatedAtAction(nameof(ShowVideoById), new { Id = selectedVideo.Id }, selectedVideo);
+      return NoContent();
     }
     catch (ErrorToGetUserIdException e)
     {

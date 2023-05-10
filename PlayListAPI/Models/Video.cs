@@ -8,7 +8,7 @@ namespace PlayListAPI.Models
     public string Description { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
     public int CategoriaId { get; set; }
-    public virtual Categoria Categoria { get; set; } = new();
+    public virtual Categoria? Categoria { get; set; }
     public string AuthorId { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime ModifyAt { get; set; } = DateTime.UtcNow;
