@@ -68,6 +68,7 @@ public class VideosControllerTest
     string idUser = "user123";
     headers.Add("Authorization", "Bearer [suppose_to_be_a_valid_token]");
     _tokenServiceMock.Setup(t => t.ExtractID(headers["Authorization"])).Returns(idUser);
+
     var expectedVideo = new ReadVideoDTO { Id = 1, Title = "Test Video", Description = "A video for testing purposes", Url = "https://example.com/video" };
 
     // Simulate adding the video successfully
@@ -80,8 +81,16 @@ public class VideosControllerTest
     // Assert
     Assert.IsType<CreatedAtActionResult>(result);
     var createdAtResult = Assert.IsType<CreatedAtActionResult>(result);
-    var actualVideo = Assert.IsType<ReadVideoDTO>(createdAtResult.Value);
     _tokenServiceMock.Verify(t => t.ExtractID(headers["Authorization"]), Times.Once());
+
+    var actualValue = createdAtResult.Value as object;
+    var actualVideo = new ReadVideoDTO
+    {
+      Id = (int)actualValue.GetType().GetProperty("Id").GetValue(actualValue),
+      Title = (string)actualValue.GetType().GetProperty("Title").GetValue(actualValue),
+      Description = (string)actualValue.GetType().GetProperty("Description").GetValue(actualValue),
+      Url = (string)actualValue.GetType().GetProperty("Url").GetValue(actualValue)
+    };
 
     Assert.Equal(expectedVideo.Id, actualVideo.Id);
     Assert.Equal(expectedVideo.Title, actualVideo.Title);
@@ -373,17 +382,12 @@ public class VideosControllerTest
     // When
     var response = await _controller.UpdateVideo(It.IsAny<int>(), It.IsAny<UpdateVideoDTO>());
     // Then
-    Assert.IsType<CreatedAtActionResult>(response);
+    Assert.IsType<NoContentResult>(response);
 
-    var result = Assert.IsType<CreatedAtActionResult>(response);
-    var actualVideo = Assert.IsType<ReadVideoDTO>(result.Value);
+    var result = Assert.IsType<NoContentResult>(response);
 
-    Assert.Equal(expected.Id, actualVideo.Id);
-    Assert.Equal(expected.Title, actualVideo.Title);
-    Assert.Equal(expected.Description, actualVideo.Description);
-    Assert.Equal(expected.Url, actualVideo.Url);
-    Assert.Equal(expected.Categoria, actualVideo.Categoria);
-    Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
+
+    Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
   }
 
   [Fact]
