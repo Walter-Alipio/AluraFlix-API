@@ -1,4 +1,6 @@
-# AluraFlix
+# AluraFlix - API
+
+[AluraFlix - API](./img/AluraFlix-Logo.png#vitrinedev)
 
 A plataforma que permiti aos usuários montar playlists com links para seus vídeos preferidos, separados por categorias.
 
@@ -14,7 +16,14 @@ A plataforma que permiti aos usuários montar playlists com links para seus víd
 
 ## 🔨 Objetivo do projeto
 
-O objetivo do Alura Challenge é aplicar os conhecimentos obtidos através dos cursos disponíveis na plataforma. Recebemos os casds de desafio ao início de cada uma das 4 semans de challenge. Não há restrição quanto a qual técnologia deva ser utilizada pelos alunos, ficando a cargo de cada um decidir como irá construir o projeto.
+O objetivo do Alura Challenge é aplicar os conhecimentos obtidos através dos cursos disponíveis na plataforma. As tarefas são disponibilizadas ao início de cada uma das 4 semans de challenge. Não há restrição quanto a qual técnologia deva ser utilizada pelos alunos, ficando a cargo de cada um decidir como irá construir o projeto.
+
+## Extras
+
+- As rotas agora requerem autenticação, menos get Videos e Categorias.
+- Apenas o adminstrador pode cadastrar, alterar ou deletar uma categoria.
+- Há um novo endpoint para acessar apenas os videos do próprio usuário.
+- Apenas o proprietário do video pode alterar ou deletar um video.
 
 ### História
 
@@ -35,9 +44,9 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 - [x] Armazenar no banco de dados as informações sobre os vídeos
 - [x] Todos os campos de vídeos devem ser obrigatórios e validados.
 - [x] Implementar para /videos POST/GET/GET_ID/PUT/DELETE.
-- [x] PUT atualiza um ou mais campos de um vídeo. Retornar um Json com informações do video atualizado.
+- [x] PUT atualiza um ou mais campos de um vídeo.
 
-## :construction: Semana 2
+## :ok: Semana 2
 
 - [x] Armazenar no banco de dados as informações sobre as categorias.
 - [x] Uma nova categoria não pode ser criada caso tenha algum campo vazio.Caso em branco, informar: `O campo é obrigatório`.
@@ -49,7 +58,7 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 - [x] Criar testes de unidade para os modelos e controller.
 - [ ] Crie testes de integração.
 
-## :construction: Semana 3 e 4
+## :ok: Semana 3 e 4
 
 - [x] Sistema de autenticação.
 - [x] Alteração no banco de dados para tabela de usuário.
@@ -66,6 +75,7 @@ Os times de frontend e UI já estão trabalhando no layout e nas telas. Para o b
 - [DotEnv](https://github.com/bolorundurowb/dotenv.net)
 - [SQL Sever 2022](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads)
 - [Swagger](https://swagger.io/)
+- [Docker](https://www.docker.com/)
 
 <br>
 
@@ -89,6 +99,8 @@ O adminstrador deve ser criado direto no banco de dados e deve ser atribuído o 
 
 Crie um arquivo `.env` na raiz do projeto PlayListAPI seguindo o modelo do arquivo `.env.example`
 <br><br>
+
+[API - Endpoints](./img/API.png)
 
 # **Rotas do projeto**
 
@@ -117,7 +129,6 @@ Crie um arquivo `.env` na raiz do projeto PlayListAPI seguindo o modelo do arqui
 | GET    | -           | /meus_videos   | Retorna lista de videos do usuário logado    | -           |                           |
 | GET    | -           | /videos/bypage | Retorna lista de videos paginado             | -           | ?page=`1`&pageSize=`5`    |
 | PUT    | User        | /videos/`{id}` | Permite atualizar um ou mais dados do video. | JSON        | -                         |
-|        |             |                | Retorna dados atualizados.                   |             |                           |
 | DELETE | User        | /videos/`{id}` | Exclui um video indicado pelo id.            | -           | -                         |
 
 <br><br>
