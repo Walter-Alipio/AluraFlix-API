@@ -26,7 +26,7 @@ public class CategoriaServiceTest
   {
     // Given
     List<Categoria> categorias = new List<Categoria>();
-    _MockRepository.Setup(d => d.GetAll(c => c.Videos)).Returns(Task.FromResult(categorias));
+    _MockRepository.Setup(d => d.GetAll(c => c.Videos)).Returns(Task.FromResult<List<Categoria>?>(categorias));
     // When
     var result = await _service.ShowAllCategoriasAsync();
     // Then

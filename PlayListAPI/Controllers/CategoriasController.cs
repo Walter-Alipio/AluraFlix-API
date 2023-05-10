@@ -57,7 +57,7 @@ namespace PlayListAPI.Controllers
       return CreatedAtAction(nameof(ShowCategoriaById), new { Id = categoriasDto.Id }, categoriasDto);
     }
     [HttpDelete("{id}")]
-    [Authorize("admin")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteCategorias(int id)
     {
       Result result = await _categoriaService.DeleteCategoriasAsync(id);
