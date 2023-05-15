@@ -49,7 +49,7 @@ public class BaseRepository<T> : IBaseRepository<T>
       query = query.Include(include);
     }
 
-    return await query.ToListAsync();
+    return await query.IgnoreQueryFilters().ToListAsync();
   }
 
   public async Task<T?> GetByIdAsync(int id, Expression<Func<T, object>>? include = null)

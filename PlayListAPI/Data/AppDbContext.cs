@@ -44,7 +44,31 @@ namespace PlayListAPI.Data
         Cor = "#FFFFFF"
       });
 
+      builder.Entity<Video>().HasQueryFilter(v => v.DeletedAt == null);
+
       builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+      HandleVideoDelete();
+      return await base.SaveChangesAsync();
+    }
+
+    private void HandleVideoDelete()
+    {
+      var entities = ChangeTracker.Entries()
+                          .Where(e => e.State == EntityState.Deleted);
+
+      foreach (var entity in entities)
+      {
+        if (entity.Entity is Video)
+        {
+          entity.State = EntityState.Modified;
+          var video = entity.Entity as Video;
+          video!.DeletedAt = DateTime.UtcNow;
+        }
+      }
     }
   }
 }
