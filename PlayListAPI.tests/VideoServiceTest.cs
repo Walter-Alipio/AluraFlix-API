@@ -33,7 +33,7 @@ public class VideoServiceTest
   public async void GetVideosAsync_ReturnsEmptyList_WhenRepositoryReturnsNull()
   {
     // Given
-    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult<List<Video>?>(null));
+    _MockRepository.Setup(d => d.GetAll(null)).Returns(Task.FromResult<List<Video>?>(null));
     // When
     var result = await _service.GetVideosAsync(null);
 
@@ -55,7 +55,7 @@ public class VideoServiceTest
         };
     var expct = new List<ReadVideoDTO>();
 
-    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult<List<Video>?>(videos));
+    _MockRepository.Setup(d => d.GetAll(null)).Returns(Task.FromResult<List<Video>?>(videos));
     // When
     var result = await _service.GetVideosAsync(title);
     // Then
@@ -78,7 +78,7 @@ public class VideoServiceTest
              new Video() {Title = "Bolha Tec"},
         };
 
-    _MockRepository.Setup(d => d.GetAll(v => v.Categoria)).Returns(Task.FromResult<List<Video>?>(videos));
+    _MockRepository.Setup(d => d.GetAll(v => v.Categoria!)).Returns(Task.FromResult<List<Video>?>(videos));
     // When
     var resultNoParams = await _service.GetVideosAsync("");
     var resultWithParams = await _service.GetVideosAsync(title);
@@ -95,7 +95,7 @@ public class VideoServiceTest
     // Given
     var expectedMessage = "Video não encontrado.";
 
-    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), null)).Returns(Task.FromResult<Video?>(null));
 
     // When
     var result = await Assert.ThrowsAsync<NullReferenceException>(() => _service.GetVideoByIdAsync(It.IsAny<int>()));
@@ -147,7 +147,7 @@ public class VideoServiceTest
   {
     // Given
     var expectedMessage = "Video não encontrado.";
-    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), null)).Returns(Task.FromResult<Video?>(null));
 
     // When
     // Then
@@ -192,7 +192,7 @@ public class VideoServiceTest
   {
     // Given
     var expectedMessage = "Video não encontrado.";
-    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), v => v.Categoria)).Returns(Task.FromResult<Video?>(null));
+    _MockRepository.Setup(d => d.GetByIdAsync(It.IsAny<int>(), null)).Returns(Task.FromResult<Video?>(null));
 
     // When
     var result = await Assert.ThrowsAsync<NullReferenceException>(() => _service.DeleteVideoAsync(It.IsAny<int>(), It.IsAny<string>()));

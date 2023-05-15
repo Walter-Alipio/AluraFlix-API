@@ -83,16 +83,9 @@ public class VideosControllerTest
     var createdAtResult = Assert.IsType<CreatedAtActionResult>(result);
     _tokenServiceMock.Verify(t => t.ExtractID(headers["Authorization"]), Times.Once());
 
-    var actualValue = createdAtResult.Value as object;
-    var actualVideo = new ReadVideoDTO
-    {
-      Id = (int)actualValue.GetType().GetProperty("Id").GetValue(actualValue),
-      Title = (string)actualValue.GetType().GetProperty("Title").GetValue(actualValue),
-      Description = (string)actualValue.GetType().GetProperty("Description").GetValue(actualValue),
-      Url = (string)actualValue.GetType().GetProperty("Url").GetValue(actualValue)
-    };
+    var actualVideo = createdAtResult.Value as ReadVideoDTO;
 
-    Assert.Equal(expectedVideo.Id, actualVideo.Id);
+    Assert.Equal(expectedVideo.Id, actualVideo!.Id);
     Assert.Equal(expectedVideo.Title, actualVideo.Title);
     Assert.Equal(expectedVideo.Description, actualVideo.Description);
     Assert.Equal(expectedVideo.Url, actualVideo.Url);
@@ -225,7 +218,7 @@ public class VideosControllerTest
   {
     // Given
     var errorMessage = "Nenhum video encontrado";
-    _moqService.Setup(s => s.GetPaginatedVideos(It.IsAny<int>(), It.IsAny<int>())).Throws(new NullReferenceException(errorMessage));
+    _moqService.Setup(s => s.GetPaginatedVideos(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())).Throws(new NullReferenceException(errorMessage));
 
     // When
     var pageZero = await _controller.ShowVideosPaginated(0, 5);

@@ -28,14 +28,7 @@ public class VideosController : ControllerBase
 
       ReadVideoDTO dto = await _videoService.AddVideoAsync(videoDto, userId);
 
-      return CreatedAtAction(nameof(ShowVideoById), new { Id = dto.Id }, new
-      {
-        dto.Id,
-        dto.Title,
-        dto.Description,
-        dto.Url,
-        videoDto.CategoriaId
-      });
+      return CreatedAtAction(nameof(ShowVideoById), new { Id = dto.Id }, dto);
 
     }
     catch (ErrorToGetUserIdException e)
@@ -65,8 +58,8 @@ public class VideosController : ControllerBase
     }
   }
 
-  [HttpGet]
-  [AllowAnonymous]
+  [HttpGet("/Videos/Todos")]
+  [Authorize(Roles = "admin")]
   public async Task<IActionResult> ShowAllVideos([FromQuery] string? search)
   {
     List<ReadVideoDTO> readDtoList = await _videoService.GetVideosAsync(search);
@@ -75,15 +68,15 @@ public class VideosController : ControllerBase
     return Ok(readDtoList);
   }
 
-  [HttpGet("/Videos/bypage")]
+  [HttpGet()]
   [AllowAnonymous]
-  public async Task<IActionResult> ShowVideosPaginated(int page = 1, int pageSize = 5)
+  public async Task<IActionResult> ShowVideosPaginated(int page = 1, int pageSize = 5, [FromQuery] string? search = null)
   {
     if (page <= 0) return NotFound();
 
     try
     {
-      VideosPaginatedViewModel readList = await _videoService.GetPaginatedVideos(page, pageSize);
+      VideosPaginatedViewModel readList = await _videoService.GetPaginatedVideos(page, pageSize, search);
 
       return Ok(readList);
     }

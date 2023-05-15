@@ -47,7 +47,7 @@ namespace PlayListAPI.Services
 
     public async Task<ReadVideoDTO> GetVideoByIdAsync(int id)
     {
-      Video? video = await _repository.GetByIdAsync(id, v => v.Categoria);
+      Video? video = await _repository.GetByIdAsync(id, v => v.Categoria!);
       if (video == null)
       {
         throw new NullReferenceException("Video não encontrado.");
@@ -58,7 +58,7 @@ namespace PlayListAPI.Services
 
     public async Task<List<ReadVideoDTO>> GetVideosAsync(string? videoTitle)
     {
-      List<Video>? videos = await _repository.GetAll(v => v.Categoria);
+      List<Video>? videos = await _repository.GetAll(v => v.Categoria!);
       if (videos is null || !videos.Any())
       {
         return new List<ReadVideoDTO>();
@@ -139,13 +139,25 @@ namespace PlayListAPI.Services
       return _mapper.Map<List<ReadVideoDTO>>(videos);
     }
 
-    public async Task<VideosPaginatedViewModel> GetPaginatedVideos(int page, int pageSize)
+    public async Task<VideosPaginatedViewModel> GetPaginatedVideos(int page, int pageSize, string? videoTitle)
     {
-      List<Video>? videos = await _repository.GetAllPaginatedAsync(page, pageSize, v => v.Categoria);
+      List<Video>? videos = await _repository.GetAllPaginatedAsync(page, pageSize, v => v.Categoria!);
 
       if (videos is null || !videos.Any())
       {
         throw new NullReferenceException("Nenhum video foi encontrado");
+      }
+
+      if (!string.IsNullOrEmpty(videoTitle))
+      {
+        try
+        {
+          videos = videos.Where(v => v.Title.Contains(videoTitle)).ToList();
+        }
+        catch (NullReferenceException)
+        {
+          throw new NullReferenceException("Nenhum video foi encontrado");
+        }
       }
 
       List<ReadVideoDTO> videosPage = _mapper.Map<List<ReadVideoDTO>>(videos);

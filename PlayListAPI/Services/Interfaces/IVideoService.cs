@@ -10,6 +10,6 @@ namespace PlayListAPI.Services.Interfaces
     Task<List<ReadVideoDTO>> GetVideosAsync(string? videoTitle);
     Task<ReadVideoDTO> GetVideoByIdAsync(int id);
     Task<ReadVideoDTO> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO, string userId);
-    Task<VideosPaginatedViewModel> GetPaginatedVideos(int page, int pageSize);
+    Task<VideosPaginatedViewModel> GetPaginatedVideos(int page, int pageSize, string? videoTitle);
   }
 }
