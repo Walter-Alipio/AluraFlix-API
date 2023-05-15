@@ -1,6 +1,4 @@
-# AluraFlix - API
-
-<img src="./img/AluraFlix-Logo.png">
+# VideoPlaylist - API
 
 A plataforma que permiti aos usuários montar playlists com links para seus vídeos preferidos, separados por categorias.
 
@@ -24,6 +22,8 @@ O objetivo do Alura Challenge é aplicar os conhecimentos obtidos através dos c
 - Apenas o adminstrador pode cadastrar, alterar ou deletar uma categoria.
 - Há um novo endpoint para acessar apenas os videos do próprio usuário.
 - Apenas o proprietário do video pode alterar ou deletar um video.
+- Implementado soft delete para videos.
+- Implementada rota para que o adminstrador tenha acesso a todos os videos, incluindo os videos deletados.
 
 ### História
 
@@ -120,16 +120,16 @@ Crie um arquivo `.env` na raiz do projeto PlayListAPI seguindo o modelo do arqui
 
 # Videos
 
-| Método | Autorização | Rota           | Descrição                                    | Body Params | Query Params              |
-| ------ | ----------- | -------------- | -------------------------------------------- | ----------- | ------------------------- |
-| POST   | User        | /videos        | Cadastra novo video                          | JSON        | -                         |
-| GET    | -           | /videos/`{id}` | Retorna um video por id numérico             | -           | -                         |
-| GET    | -           | /videos        | Retorna todos os videos                      | -           | -                         |
-| GET    | -           | /videos        | Retorna videos com título informado          | -           | ?search=`Titulo do video` |
-| GET    | -           | /meus_videos   | Retorna lista de videos do usuário logado    | -           |                           |
-| GET    | -           | /videos/bypage | Retorna lista de videos paginado             | -           | ?page=`1`&pageSize=`5`    |
-| PUT    | User        | /videos/`{id}` | Permite atualizar um ou mais dados do video. | JSON        | -                         |
-| DELETE | User        | /videos/`{id}` | Exclui um video indicado pelo id.            | -           | -                         |
+| Método | Autorização | Rota           | Descrição                                    | Body Params | Query Params                                    |
+| ------ | ----------- | -------------- | -------------------------------------------- | ----------- | ----------------------------------------------- |
+| POST   | User        | /videos        | Cadastra novo video                          | JSON        | -                                               |
+| GET    | -           | /videos        | Retorna lista de videos paginado             | -           | ?page=`1`&pageSize=`5`                          |
+| GET    | -           | /videos        | Retorna videos com título informado          | -           | ?page=`1`&pageSize=`5`&search=`Titulo do video` |
+| GET    | -           | /videos/`{id}` | Retorna um video por id numérico             | -           | -                                               |
+| GET    | User        | /meus_videos   | Retorna lista de videos do usuário logado    | -           |                                                 |
+| PUT    | User        | /videos/`{id}` | Permite atualizar um ou mais dados do video. | JSON        | -                                               |
+| DELETE | User        | /videos/`{id}` | Exclui um video indicado pelo id.            | -           | -                                               |
+| GET    | Admin       | /videos/Todos  | Retorna todos os videos incluindo deletados. | -           | -                                               |
 
 <br><br>
 
