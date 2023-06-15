@@ -1,5 +1,5 @@
 using PlayListAPI.Services.Interfaces;
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using FluentResults;

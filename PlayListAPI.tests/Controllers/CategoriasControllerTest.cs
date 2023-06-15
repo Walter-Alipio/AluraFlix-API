@@ -2,8 +2,8 @@ using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PlayListAPI.Controllers;
-using PlayListAPI.Data.DTOs.CategoriasDTOs;
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.CategoriasDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Services.Interfaces;
 
 namespace PlayListAPI.tests;
@@ -18,7 +18,7 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestAddCategoriaReturnsBadRequest()
+  public async void AddCategoria_ReturnsBadRequest_WhenDtoIsNull()
   {
     // Given
     CreateCategoriasDto createDto = new CreateCategoriasDto();
@@ -29,7 +29,7 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestAddCategoriaReturnsCreated()
+  public async void AddCategoria_ReturnsCreated_WhenTheOperationIsSuccess()
   {
     // Given
     CreateCategoriasDto createDto = new CreateCategoriasDto();
@@ -44,7 +44,7 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestShowCategoriaByIdReturnsNotFound()
+  public async void ShowCategoriaById_ReturnsNotFound_WhenDtoIsNull()
   {
     // Given
     // When
@@ -54,7 +54,7 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestShowCategoriaByIdReturnsOk()
+  public async void ShowCategoriaById_ReturnsOk_WhenTheOperationIsSuccess()
   {
     // Given
     ReadCategoriasDto readDto = new ReadCategoriasDto();
@@ -68,9 +68,10 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestShowVideosByCategoriaIdReturnsNotFound()
+  public async void ShowVideosByCategoriaId_ReturnsNotFound_WhenDtoListIsEmpty()
   {
     // Given
+    _moqService.Setup(x => x.ShowVideosByCategoriaIdAsync(1)).Returns(Task.FromResult(new List<ReadVideoDTO>()));
     // When
     var response = await _controller.ShowVideosByCategoriaId(1);
     // Then
@@ -78,10 +79,14 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestShowVideosByCategoriaIdReturnsOk()
+  public async void ShowVideosByCategoriaId_ReturnsSelectedVideo_WhenTheOperationIsSuccess()
   {
     // Given
-    List<ReadVideoDTO> readDto = new();
+    List<ReadVideoDTO> readDto = new()
+      {
+        new ReadVideoDTO(),
+        new ReadVideoDTO()
+      };
 
     _moqService.Setup(x => x.ShowVideosByCategoriaIdAsync(1))
       .Returns(Task.FromResult(readDto));
@@ -92,12 +97,14 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestShowAllCategoriasReturnsNotFound()
+  public async void ShowAllCategorias_ReturnsNotFound_WhenDtoListIsEmpty()
   {
     // Given
     List<ReadCategoriasDto> categoriasDtos = new();
+
     _moqService.Setup(x => x.ShowAllCategoriasAsync())
       .Returns(Task.FromResult(categoriasDtos));
+
     // When
     var response = await _controller.ShowAllCategorias();
     // Then
@@ -105,12 +112,14 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestShowAllCategoriasReturnsOk()
+  public async void ShowAllCategorias_ReturnsCategoriasList_WhenTheOperationIsSucess()
   {
     // Given
-    ReadCategoriasDto readDto = new ReadCategoriasDto();
-    List<ReadCategoriasDto> categoriasDtos = new();
-    categoriasDtos.Add(readDto);
+    List<ReadCategoriasDto> categoriasDtos = new()
+      {
+        new ReadCategoriasDto()
+      };
+
     _moqService.Setup(x => x.ShowAllCategoriasAsync())
       .Returns(Task.FromResult(categoriasDtos));
 
@@ -121,7 +130,7 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestUpdateCategoriaReturnsNotFound()
+  public async void UpdateCategoria_ReturnsNotFound_WhenDtoIsEmpty()
   {
     // Given
     UpdateCategoriasDtos updateDto = new();
@@ -132,7 +141,7 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestUpdateCategoriaReturnsCreated()
+  public async void UpdateCategoria_ReturnsCreated_WhenOperationIsSuccess()
   {
     // Given
     UpdateCategoriasDtos updateDto = new();
@@ -148,19 +157,20 @@ public class CategoriasControllerTest
   }
 
   [Fact]
-  public async void TestDeleteCategoriaReturnsNotFound()
+  public async void DeleteCategoria_ReturnsNotFound_WhenDeleteReturnsNullException()
   {
     // Given
-    Result result = Result.Fail("Não encontrado");
-    _moqService.Setup(x => x.DeleteCategoriasAsync(1)).Returns(Task.FromResult(result));
+    _moqService.Setup(x => x.DeleteCategoriasAsync(1)).Throws(new NullReferenceException());
+
     // When
     var response = await _controller.DeleteCategorias(1);
+
     // Then
     Assert.IsType<NotFoundResult>(response);
   }
 
   [Fact]
-  public async void TestDeleteCategoriaReturnsNoContent()
+  public async void DeleteCategoria_ReturnsNoContent_WhenOperationIsSuccess()
   {
     // Given
     Result result = Result.Ok();

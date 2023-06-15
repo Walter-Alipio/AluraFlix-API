@@ -1,12 +1,13 @@
 using AutoMapper;
 using Moq;
-using PlayListAPI.Data.DTOs.CategoriasDTOs;
+using PlayListAPI.DTOs.CategoriasDTOs;
 using PlayListAPI.Models;
-using PlayListAPI.ViewModels.Profiles;
+using PlayListAPI.Profiles;
 using PlayListAPI.Repository;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
 
+namespace PlayListAPI.tests.Services;
 public class CategoriaServiceTest
 {
   private Mock<ICategoriaRepository> _MockRepository = new Mock<ICategoriaRepository>();
@@ -22,7 +23,7 @@ public class CategoriaServiceTest
   }
 
   [Fact]
-  public async void TestShowAllCategoriasAsyncReturnEmptytList()
+  public async void ShowAllCategoriasAsync_ReturnsEmptyList_WhenDbReturnsNull()
   {
     // Given
     List<Categoria> categorias = new List<Categoria>();
@@ -34,7 +35,7 @@ public class CategoriaServiceTest
   }
 
   [Fact]
-  public async void TestShowCategoriaByIdAsyncReturnNull()
+  public async void ShowCategoriaByIdAsync_ReturnsNull_WhenDbReturnsNull()
   {
     // Given
     int id = 1;
@@ -46,7 +47,7 @@ public class CategoriaServiceTest
   }
 
   [Fact]
-  public async void TestShowVideosByCategoriaIdAsyncReturnEmptyList()
+  public async void ShowVideosByCategoriaIdAsync_ReturnsEmptyList_WhenDbReturnsEmptyVideoList()
   {
     // Given
     int id = 1;
@@ -65,7 +66,7 @@ public class CategoriaServiceTest
   [InlineData("#FFFFFF")]
   [InlineData("#123fff")]
   [InlineData("#12fF23")]
-  public async void TestAddCategoriaAsyncReturnReadCategoriasDto(string color)
+  public async void AddCategoriaAsync_ReturnsReadCategoriasDto_WhenOperationIsSuccess(string color)
   {
     // Given
     CreateCategoriasDto dto = new()
@@ -80,7 +81,7 @@ public class CategoriaServiceTest
     Assert.IsType<ReadCategoriasDto>(result);
   }
   [Fact]
-  public async void TestUpdateCategoriaAsyncReturnFailed()
+  public async void UpdateCategoriaAsync_ReturnNull_WhenDbReturnsNull()
   {
     // Given
     int id = 1;
@@ -95,15 +96,16 @@ public class CategoriaServiceTest
   }
 
   [Fact]
-  public async void TestDeleteCategoriasAsyncReturnResultFailed()
+  public async void DeleteCategoriasAsync_ReturnNullReferenceException_WhenDbReturnsNull()
   {
     // Given
     int id = 1;
+    var errorMessage = "Não encontrado";
     _MockRepository.Setup(d => d.GetByIdAsync(id, c => c.Videos)).Returns(Task.FromResult<Categoria?>(null));
     // When
-    var result = await _service.DeleteCategoriasAsync(id);
+    var result = await Assert.ThrowsAsync<NullReferenceException>(() => _service.DeleteCategoriasAsync(id));
     // Then
-    Assert.True(result.IsFailed);
+    Assert.Equal(errorMessage, result.Message);
   }
 
 }

@@ -1,18 +1,15 @@
-using System.Linq.Expressions;
 using AutoMapper;
-using FluentResults;
 using Moq;
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Exceptions;
 using PlayListAPI.Models;
 using PlayListAPI.Repository;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
-using PlayListAPI.ViewModels.CustomMapper;
-using PlayListAPI.ViewModels.Profiles;
+using PlayListAPI.Profiles.CustomMapper;
+using PlayListAPI.Profiles;
 
-namespace PlayListAPI.tests;
-
+namespace PlayListAPI.tests.Services;
 public class VideoServiceTest
 {
   private Mock<IVideoRepository> _MockRepository = new Mock<IVideoRepository>();
@@ -68,15 +65,17 @@ public class VideoServiceTest
   public async void GeVideos_ReturnsReadVideoDTOList_WhenGetAllIsSuccessful()
   {
     // Given
-    var title = "Tentei fazer uma API e olha no que deu";
+    var title = "API";
 
     var videos = new List<Video>()
         {
              new Video() {Title = "Como se tornar desenvolvedor em 3 passos"},
-             new Video() {Title = title},
+             new Video() {Title = "Tentei fazer uma API e olha no que deu"},
              new Video() {Title = "Front-end vs Back-end"},
              new Video() {Title = "Bolha Tec"},
+             new Video() {Title = "Desenvolva sua primeira API"},
         };
+    int twoItensWithAPIOnTitle = 2;
 
     _MockRepository.Setup(d => d.GetAll(v => v.Categoria!)).Returns(Task.FromResult<List<Video>?>(videos));
     // When
@@ -86,7 +85,7 @@ public class VideoServiceTest
     Assert.IsType<List<ReadVideoDTO>>(resultNoParams);
     Assert.Equal(videos.Count(), resultNoParams.Count());
     Assert.NotEmpty(resultWithParams);
-    Assert.Equal(title, resultWithParams[0].Title);
+    Assert.True(resultWithParams.Count() == twoItensWithAPIOnTitle);
   }
 
   [Fact]

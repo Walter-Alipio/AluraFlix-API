@@ -1,6 +1,6 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Models;
-using PlayListAPI.ViewModels.CustomMapper;
+using PlayListAPI.Profiles.CustomMapper;
 
 namespace PlayListAPI.tests.Models;
 
