@@ -1,4 +1,4 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using dotenv.net;
 
 namespace PlayListAPI.ViewModels;

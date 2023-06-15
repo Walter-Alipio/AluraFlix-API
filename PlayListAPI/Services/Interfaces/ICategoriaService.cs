@@ -1,12 +1,12 @@
 using FluentResults;
-using PlayListAPI.Data.DTOs.CategoriasDTOs;
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.CategoriasDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 
 namespace PlayListAPI.Services.Interfaces;
 public interface ICategoriaService
 {
   Task<ReadCategoriasDto?> AddCategoriaAsync(CreateCategoriasDto categoriaDto);
-  Task<Result> DeleteCategoriasAsync(int id);
+  Task DeleteCategoriasAsync(int id);
   Task<List<ReadCategoriasDto>> ShowAllCategoriasAsync();
   Task<ReadCategoriasDto?> ShowCategoriaByIdAsync(int id);
   Task<List<ReadVideoDTO>> ShowVideosByCategoriaIdAsync(int id);

@@ -1,4 +1,4 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using FluentResults;
 
 namespace PlayListAPI.Services.Interfaces

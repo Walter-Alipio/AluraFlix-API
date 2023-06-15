@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using PlayListAPI.Data.DTOs.TokenDTOs;
+using PlayListAPI.DTOs.TokenDTOs;
 using PlayListAPI.Utils;
 
 namespace PlayListAPI.Services;

@@ -3,9 +3,9 @@ using FluentResults;
 using PlayListAPI.Models;
 using PlayListAPI.Repository;
 using PlayListAPI.ViewModels;
-using PlayListAPI.ViewModels.CustomMapper;
+using PlayListAPI.Profiles.CustomMapper;
 using PlayListAPI.Exceptions;
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Services.Interfaces;
 
 namespace PlayListAPI.Services

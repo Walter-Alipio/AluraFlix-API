@@ -1,4 +1,4 @@
-namespace PlayListAPI.Data.DTOs.TokenDTOs;
+namespace PlayListAPI.DTOs.TokenDTOs;
 
 public class TokenDto
 {

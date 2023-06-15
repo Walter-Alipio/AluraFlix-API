@@ -1,6 +1,8 @@
 
 using AutoMapper;
 
+namespace PlayListAPI.Profiles;
+
 public static class MapOnlyIfChange
 {
   public static IMappingExpression<TSource, TDestination> MapOnlyIfChanged<TSource, TDestination>(this IMappingExpression<TSource, TDestination> map)

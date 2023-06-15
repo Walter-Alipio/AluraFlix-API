@@ -1,4 +1,4 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 
 public class VideosPaginatedViewModel
 {

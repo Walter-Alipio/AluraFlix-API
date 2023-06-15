@@ -12,7 +12,7 @@ using PlayListAPI.Repository.Handle;
 using PlayListAPI.Services;
 using PlayListAPI.Services.Interfaces;
 using PlayListAPI.Utils;
-using PlayListAPI.ViewModels.CustomMapper;
+using PlayListAPI.Profiles.CustomMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +34,7 @@ builder.Services.Configure<IdentityOptions>(opt =>
   opt.User.RequireUniqueEmail = true;
 });
 
+//Authentication configuration
 builder.Services.AddAuthentication(auth =>
 {
   auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -113,11 +114,9 @@ builder.Services.AddSwaggerGen(swagger =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-  app.UseSwagger();
-  app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -1,11 +1,9 @@
-using PlayListAPI.Data;
-using PlayListAPI.Data.DTOs.CategoriasDTOs;
+using PlayListAPI.DTOs.CategoriasDTOs;
 using PlayListAPI.Models;
 using AutoMapper;
 using FluentResults;
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 using System.Text.RegularExpressions;
 using PlayListAPI.Repository;
@@ -75,14 +73,13 @@ namespace PlayListAPI.Services
       return _mapper.Map<ReadCategoriasDto>(categoria);
     }
 
-    public async Task<Result> DeleteCategoriasAsync(int id)
+    public async Task DeleteCategoriasAsync(int id)
     {
       Categoria? categoria = await _repository.GetByIdAsync(id);
-      if (categoria == null) return Result.Fail("Não encontrado");
+      if (categoria == null) throw new NullReferenceException("Não encontrado");
 
       await _repository.Delete(categoria);
 
-      return Result.Ok();
     }
 
     public Result? IsColorPatternValid(UpdateCategoriasDtos dtos)

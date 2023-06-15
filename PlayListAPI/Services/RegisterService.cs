@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using PlayListAPI.Data.DTOs.RegisterDTOs;
+using PlayListAPI.DTOs.RegisterDTOs;
 
 namespace PlayListAPI.Services;
 

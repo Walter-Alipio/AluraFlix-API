@@ -1,6 +1,6 @@
 using FluentResults;
 using Microsoft.AspNetCore.Identity;
-using PlayListAPI.Requests;
+using PlayListAPI.DTOs.LoginDTOs;
 
 namespace PlayListAPI.Services;
 
@@ -15,7 +15,7 @@ public class LoginService
     _token = token;
   }
 
-  public Result UserLogin(LoginRequest loginRequest)
+  public string UserLogin(LoginRequestDto loginRequest)
   {
     var identity = _signInManager
         .PasswordSignInAsync(loginRequest.UserName, loginRequest.Password, false, false);
@@ -31,10 +31,10 @@ public class LoginService
       var token = _token.CreateToken(identityUser, _signInManager
           .UserManager.GetRolesAsync(identityUser).Result.FirstOrDefault());
 
-      return Result.Ok().WithSuccess(token.Value);
+      return token.Value;
     }
 
-    return Result.Fail("Login falhou!");
+    throw new FailToLoginException("Login falhou!");
   }
 
   public Result Logout()

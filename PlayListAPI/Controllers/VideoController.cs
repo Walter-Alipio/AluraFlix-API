@@ -1,4 +1,4 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -150,7 +150,6 @@ public class VideosController : ControllerBase
   {
     try
     {
-
       string userId = string.Empty;
       userId = _tokenExtract.ExtractID(Request.Headers["Authorization"]);
 

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using PlayListAPI.Data.DTOs.RegisterDTOs;
+using PlayListAPI.DTOs.RegisterDTOs;
 using PlayListAPI.Services;
 
 namespace PlayListAPI.Controllers;

@@ -1,8 +1,8 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Models;
 using AutoMapper;
 
-namespace PlayListAPI.ViewModels.Profiles;
+namespace PlayListAPI.Profiles;
 public class VideoProfile : Profile
 {
   public VideoProfile()

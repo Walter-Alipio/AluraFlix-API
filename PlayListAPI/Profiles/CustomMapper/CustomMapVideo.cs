@@ -1,7 +1,7 @@
-using PlayListAPI.Data.DTOs.VideosDTOs;
+using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Models;
 
-namespace PlayListAPI.ViewModels.CustomMapper;
+namespace PlayListAPI.Profiles.CustomMapper;
 
 public class CustomMapVideo : ICustomMapVideo
 {
