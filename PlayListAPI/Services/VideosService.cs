@@ -47,11 +47,8 @@ namespace PlayListAPI.Services
 
     public async Task<ReadVideoDTO> GetVideoByIdAsync(int id)
     {
-      Video? video = await _repository.GetByIdAsync(id, v => v.Categoria!);
-      if (video == null)
-      {
-        throw new NullReferenceException("Video não encontrado.");
-      }
+      Video? video = await _repository.GetByIdAsync(id, v => v.Categoria!) ?? throw new NullReferenceException("Video não encontrado.");
+
       return _mapper.Map<ReadVideoDTO>(video);
     }
 
@@ -82,21 +79,16 @@ namespace PlayListAPI.Services
 
     public async Task<ReadVideoDTO> UpdateVideoAsync(int id, UpdateVideoDTO videoDTO, string userId)
     {
-      Video? video = await _repository.GetByIdAsync(id);
-      if (video is null)
-      {
-        throw new NullReferenceException("Video não encontrado.");
-      }
+      Video? video = await _repository.GetByIdAsync(id) ?? throw new NullReferenceException("Video não encontrado.");
 
       if (!userId.Equals(video.AuthorId))
       {
         throw new NotTheOwnerException("Você não é dono deste video.");
       }
 
-
       if (!string.IsNullOrEmpty(videoDTO.Url))
       {
-        var result = this.CheckUrlPattern(videoDTO);
+        var result = CheckUrlPattern(videoDTO);
 
         if (result.IsFailed)
         {
@@ -115,11 +107,8 @@ namespace PlayListAPI.Services
 
     public async Task DeleteVideoAsync(int id, string userId)
     {
-      Video? video = await _repository.GetByIdAsync(id);
-      if (video is null)
-      {
-        throw new NullReferenceException("Video não encontrado.");
-      }
+      Video? video = await _repository.GetByIdAsync(id) ?? throw new NullReferenceException("Video não encontrado.");
+
       if (!userId.Equals(video.AuthorId))
       {
         throw new NotTheOwnerException("Você não permissão para deletar este video.");
@@ -162,13 +151,13 @@ namespace PlayListAPI.Services
 
       List<ReadVideoDTO> videosPage = _mapper.Map<List<ReadVideoDTO>>(videos);
 
-      var total = await _repository.GetTotalItens();
+      int total = await _repository.GetTotalItens();
 
       var videosPaginated = new VideosPaginated(total, page, pageSize, videosPage);
       return videosPaginated.CreatePage();
     }
 
-    private Result CheckUrlPattern(VideoDto videoDto)
+    private static Result CheckUrlPattern(VideoDto videoDto)
     {
       if (string.IsNullOrEmpty(videoDto.Url)) return Result.Fail("URL INVÁLIDA!");
 

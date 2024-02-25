@@ -12,7 +12,7 @@ using PlayListAPI.Profiles;
 namespace PlayListAPI.tests.Services;
 public class VideoServiceTest
 {
-  private Mock<IVideoRepository> _MockRepository = new Mock<IVideoRepository>();
+  private Mock<IVideoRepository> _MockRepository = new();
 
   private IVideoServiceUserData _service;
   public VideoServiceTest()
@@ -46,9 +46,9 @@ public class VideoServiceTest
 
     var videos = new List<Video>()
         {
-             new Video() {Title = "Como se tornar desenvolvedor em 3 passos"},
-             new Video() {Title = "Front-end vs Back-end"},
-             new Video() {Title = "Bolha Tec"},
+             new() {Title = "Como se tornar desenvolvedor em 3 passos"},
+             new() {Title = "Front-end vs Back-end"},
+             new() {Title = "Bolha Tec"},
         };
     var expct = new List<ReadVideoDTO>();
 
@@ -69,11 +69,11 @@ public class VideoServiceTest
 
     var videos = new List<Video>()
         {
-             new Video() {Title = "Como se tornar desenvolvedor em 3 passos"},
-             new Video() {Title = "Tentei fazer uma API e olha no que deu"},
-             new Video() {Title = "Front-end vs Back-end"},
-             new Video() {Title = "Bolha Tec"},
-             new Video() {Title = "Desenvolva sua primeira API"},
+             new() {Title = "Como se tornar desenvolvedor em 3 passos"},
+             new() {Title = "Tentei fazer uma API e olha no que deu"},
+             new() {Title = "Front-end vs Back-end"},
+             new() {Title = "Bolha Tec"},
+             new() {Title = "Desenvolva sua primeira API"},
         };
     int twoItensWithAPIOnTitle = 2;
 
@@ -108,7 +108,7 @@ public class VideoServiceTest
   public async Task GetUserVideo_ReturnsEmptyList_WhenThereIsNoUserVideos()
   {
     // Given
-    List<Video> videos = new List<Video>();
+    List<Video> videos = new();
     _MockRepository.Setup(d => d.GetAllUserVideos(It.IsAny<string>())).Returns(Task.FromResult(videos));
 
     // When
@@ -128,9 +128,9 @@ public class VideoServiceTest
 
     var videos = new List<Video>()
         {
-             new Video() {Title = "Como se tornar desenvolvedor em 3 passos" , AuthorId = userId},
-             new Video() {Title = "Front-end vs Back-end", AuthorId = userId},
-             new Video() {Title = "Bolha Tec" , AuthorId = userId},
+             new() {Title = "Como se tornar desenvolvedor em 3 passos" , AuthorId = userId},
+             new() {Title = "Front-end vs Back-end", AuthorId = userId},
+             new() {Title = "Bolha Tec" , AuthorId = userId},
         };
 
     _MockRepository.Setup(d => d.GetAllUserVideos(userId)).Returns(Task.FromResult(videos));
@@ -161,7 +161,7 @@ public class VideoServiceTest
     // Given
     var userId = "sorte";
     var videoDTO = new UpdateVideoDTO();
-    Video expected = new Video()
+    Video expected = new()
     {
       Id = 123,
       Title = "teste",
