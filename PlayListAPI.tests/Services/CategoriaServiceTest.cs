@@ -26,7 +26,7 @@ public class CategoriaServiceTest
   public async void ShowAllCategoriasAsync_ReturnsEmptyList_WhenDbReturnsNull()
   {
     // Given
-    List<Categoria> categorias = new List<Categoria>();
+    List<Categoria> categorias = new();
     _MockRepository.Setup(d => d.GetAll(c => c.Videos)).Returns(Task.FromResult<List<Categoria>?>(categorias));
     // When
     var result = await _service.ShowAllCategoriasAsync();

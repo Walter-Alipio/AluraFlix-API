@@ -4,7 +4,6 @@ using AutoMapper;
 using FluentResults;
 using PlayListAPI.DTOs.VideosDTOs;
 using PlayListAPI.Services.Interfaces;
-
 using System.Text.RegularExpressions;
 using PlayListAPI.Repository;
 
@@ -12,8 +11,8 @@ namespace PlayListAPI.Services
 {
   public class CategoriaService : ICategoriaService
   {
-    private IMapper _mapper;
-    private ICategoriaRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly ICategoriaRepository _repository;
 
     public CategoriaService(IMapper mapper, ICategoriaRepository dao)
     {
@@ -39,7 +38,7 @@ namespace PlayListAPI.Services
     {
       Categoria? categoria = await _repository.GetByIdAsync(id, c => c.Videos);
 
-      if (categoria == null) return null;
+      if (categoria is null) return null;
 
       return _mapper.Map<ReadCategoriasDto>(categoria);
     }
@@ -56,7 +55,7 @@ namespace PlayListAPI.Services
     public async Task<List<ReadCategoriasDto>> ShowAllCategoriasAsync()
     {
       List<Categoria>? categorias = await _repository.GetAll(c => c.Videos);
-      if (categorias == null) return new List<ReadCategoriasDto>();
+      if (categorias is null) return new List<ReadCategoriasDto>();
 
       return _mapper.Map<List<ReadCategoriasDto>>(categorias);
     }
@@ -64,7 +63,7 @@ namespace PlayListAPI.Services
     public async Task<ReadCategoriasDto?> UpdateCategoriaAsync(int id, UpdateCategoriasDtos updateCategoria)
     {
       Categoria? categoria = await _repository.GetByIdAsync(id, c => c.Videos);
-      if (categoria == null) return null;
+      if (categoria is null) return null;
 
       _mapper.Map(updateCategoria, categoria);
 
@@ -75,11 +74,8 @@ namespace PlayListAPI.Services
 
     public async Task DeleteCategoriasAsync(int id)
     {
-      Categoria? categoria = await _repository.GetByIdAsync(id);
-      if (categoria == null) throw new NullReferenceException("Não encontrado");
-
+      Categoria? categoria = await _repository.GetByIdAsync(id) ?? throw new NullReferenceException("Não encontrado");
       await _repository.Delete(categoria);
-
     }
 
     public Result? IsColorPatternValid(UpdateCategoriasDtos dtos)
@@ -93,7 +89,7 @@ namespace PlayListAPI.Services
 
       return Result.Ok();
     }
-    private bool ColorPatternIsInvalid(string color)
+    private static bool ColorPatternIsInvalid(string color)
     {
       color = color.ToLower();
 
